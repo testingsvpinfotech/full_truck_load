@@ -1,0 +1,11 @@
+# cookis ignor
+system/
+
+# log files
+application/logs/
+
+# Mis Report To customer in email store
+assets/*.csv
+
+# lable images mens barocde
+assets/barocde/
