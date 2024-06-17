@@ -1,0 +1,102 @@
+<?php
+defined('BASEPATH') or exit('No direct script access allowed');
+
+class Admin_rate_group_master extends CI_Controller
+{
+
+    function __construct()
+    {
+        parent::__construct();
+        $this->load->model('basic_operation_m');
+        if ($this->session->userdata('userId') == '') {
+            redirect('admin');
+        }
+    }
+
+    public function index()
+    {
+        if (isset($_POST['submit'])) {
+            $all_data = $this->input->post();
+            unset($all_data['submit']);
+            $result = $this->basic_operation_m->insert('tbl_rate_group_master', $all_data);
+            if ($this->db->affected_rows() > 0) {
+                $data['message'] = "Rate Added Sucessfully";
+            } else {
+                $data['message'] = "Error in Query";
+            }
+            redirect('admin/rate-group-master');
+        }
+        $data = array();
+        $resAct    = $this->db->query("select * from tbl_rate_group_master");
+        if ($resAct->num_rows() > 0) {
+            $data['allvehicletype'] = $resAct->result_array();
+        }
+        $this->load->view('admin/rate_group/rate_group_master', $data);
+    }
+
+
+    public function franchise_rate()
+    {
+        if (isset($_POST['submit'])) {
+            $all_data = $this->input->post();
+            unset($all_data['submit']);
+            if ($this->basic_operation_m->insert('tbl_franchise_rate_master', $all_data)) {
+                $msg = 'Rate Add Sucessfully';
+                $class = 'alert alert-success alert-dismissible';
+                $this->session->set_flashdata('notify', $msg);
+                $this->session->set_flashdata('class', $class);
+                redirect('admin/franchise-rate-master');
+            }
+        }
+        $resAct    = $this->db->query("select * from tbl_franchise_rate_master");
+        if ($resAct->num_rows() > 0) {
+            $data['allvehicletype'] = $resAct->result_array();
+        }
+        $data['rate_group'] = $this->db->query("SELECT * FROM tbl_rate_group_master ")->result();
+        $this->load->view('admin/rate_group/franchise_rate_master', $data);
+    }
+
+    public function edit_franchise_rate($id)
+    {
+        $data['rate_group'] = $this->db->query("SELECT * FROM tbl_rate_group_master ")->result();
+        $data['edit'] = $this->db->query("SELECT * FROM tbl_franchise_rate_master WHERE id = '$id'")->row();
+        //print_r($data['edit']);die;
+        if (isset($_POST['submit'])) {
+            $all_data['rate_group'] = $this->input->post('rate_group');
+            $all_data['shipment_type'] = $this->input->post('shipment_type');
+            $all_data['from_date'] = $this->input->post('from_date');
+            $all_data['from_zone'] = $this->input->post('from_zone');
+            $all_data['to_zone'] = $this->input->post('to_zone');
+            $all_data['weight_from'] = $this->input->post('weight_from');
+            $all_data['weight_to'] = $this->input->post('weight_to');
+            $all_data['rate'] = $this->input->post('rate');
+            $all_data['fixed_perkg'] = $this->input->post('fixed_perkg');
+            $where = array('id' => $id);
+          $this->basic_operation_m->update('tbl_franchise_rate_master', $all_data, $where);
+                $msg = 'Rate Updated Sucessfully';
+                $class = 'alert alert-success alert-dismissible';
+                $this->session->set_flashdata('notify', $msg);
+                $this->session->set_flashdata('class', $class);
+                redirect('admin/franchise-rate-master');
+            
+        }
+
+        $this->load->view('admin/rate_group/edit_franchise_rate_master', $data);
+    }
+
+    public function delete_rate()
+    {
+        $getId = $this->input->post('getid');
+        $data =  $this->db->delete('tbl_franchise_rate_master', array('id' => $getId));
+        // echo $this->db->last_query();
+        if ($data) {
+            $output['status'] = 'success';
+            $output['message'] = 'Rate deleted successfully';
+        } else {
+            $output['status'] = 'error';
+            $output['message'] = 'Something went wrong in deleting the member';
+        }
+
+        echo json_encode($output);
+    }
+}

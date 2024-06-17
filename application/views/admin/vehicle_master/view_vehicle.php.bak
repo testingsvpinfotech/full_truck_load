@@ -1,0 +1,90 @@
+     <?php $this->load->view('admin/admin_shared/admin_header'); ?>
+    <!-- END Head-->
+
+    <!-- START: Body-->
+    <body id="main-container" class="default">
+        
+        <!-- END: Main Menu-->
+    <?php $this->load->view('admin/admin_shared/admin_sidebar');
+   // include('admin_shared/admin_sidebar.php'); ?>
+        <!-- END: Main Menu-->
+    
+        <!-- START: Main Content-->
+        <main>
+            <div class="container-fluid site-width">
+                <!-- START: Listing-->
+                <div class="row">                 
+                  <div class="col-12  align-self-center">
+                      <div class="col-12 col-sm-12 mt-3">
+                      <div class="card">
+                          <div class="card-header justify-content-between align-items-center">                               
+                              <h4 class="card-title">View Vehicle</h4>
+                              <span style="float: right;"><a href="<?php base_url();?>admin/add-vehicle" class="fa fa-plus btn btn-primary">
+         Add Vehicle</a></span>
+                          </div>
+                          <div class="card-body">
+                              <div class="table-responsive">
+                                  <table class="table layout-primary bordered">
+                                      <thead>
+                                          <tr>
+                                             <th scope="col">ID</th>
+                                             <th scope="col">Vehicle Number</th>
+                                             <th scope="col">Vehicle Registartion</th>
+                                             <th scope="col">Vehicle Chesis</th>
+                                             <th scope="col">Vehicle Model</th>
+                                             <th scope="col">Vehicle PVC Date</th>
+                                             <th scope="col">Vehicle Insurance Renw. Date</th>
+                                             <th scope="col">Vehicle Capacity</th>
+                                            
+                                             <th scope="col">Action</th>
+                                          </tr>
+                                      </thead>
+                                      <tbody>
+                                       <tr>
+                  <?php 
+          if (!empty ($allvendor))
+          {
+
+$cnt= 1;
+          foreach ($allvendor as  $value) {
+                  ?>  
+          <td><?php echo $cnt;?></td>
+                  <td><?php echo $value['vendor_name'];?></td>
+                  <td><?php echo $value['v_contact'];?></td>
+                  <td><?php echo $value['v_add'];?></td>
+                  <td><?php echo $value['v_pincode'];?></td>
+                  <td><?php echo $value['v_city'];?></td>
+                  <td><?php echo $value['v_state'];?></td>
+                  <td><?php echo $value['v_rate_perkg'];?></td>
+                  <td><?php echo $value['v_minimum'];?></td>
+                  <td><a href="<?php echo base_url();?>admin/edit-vendor/<?php echo $value['tv_id']?>" class="btn btn-success"><i class="ion-edit"></i></a>
+                  <a href="<?php echo base_url();?>admin/delete-vendor/<?php echo $value['tv_id']?>" class="btn btn-danger"><i class="icon-trash"></i></a></td>
+        </tr>
+          <?php 
+		  $cnt++;
+            }
+                     }
+                      else{
+                          echo "<p>No Data Found</p>";
+                         }
+            ?>
+              </tbody>
+                </table> 
+            </div>
+        </div>
+      </div> 
+
+  </div>
+  </div>
+</div>
+<!-- END: Listing-->
+</div>
+    </main>
+    <!-- END: Content-->
+    <!-- START: Footer-->
+    <?php $this->load->view('admin/admin_shared/admin_footer');
+     //include('admin_shared/admin_footer.php'); ?>
+    <!-- START: Footer-->
+</body>
+<!-- END: Body-->
+

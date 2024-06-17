@@ -1,0 +1,198 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+class Track_Loication extends CI_Controller {
+
+	public function __construct()
+	{
+	   	header("Access-Control-Allow-Origin: *");
+		header("Access-Control-Allow-Credentials: true");
+		header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+		header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+		header('P3P: CP="CAO PSA OUR"'); // Makes IE to support cookies
+		header("Content-Type: application/json; charset=utf-8");
+		parent:: __construct();
+		$this->load->model('login_model');
+		$this->load->model('basic_operation_m');
+
+	}
+	
+
+	public function Create_trip()
+	{ 
+
+		$get_ftl_id = $this->input->post('get_ftl_id');
+		$create_trip = $this->input->post('create_trip');
+		//print_r($get_ftl_id);exit;
+		
+		$result = $this->db->query("update ftl_request_tbl set create_trip_status = '$create_trip' where id = '$get_ftl_id'");
+		
+		if(!empty($result)){
+			
+		$dd = 	$this->db->query("SELECT ftl_request_tbl.*, order_request_tabel.vehicle_number,order_request_tabel.contact_number FROM ftl_request_tbl LEFT JOIN order_request_tabel ON order_request_tabel.ftl_request_id = ftl_request_tbl.id where ftl_request_tbl.id ='$get_ftl_id' AND ftl_request_tbl.trafic_approve_status = '1' GROUP BY ftl_request_tbl.id")->row_array();
+         print_r($dd);
+		// $vehicle_no = $dd['vehicle_number'];
+		// $vehicle_no = $dd['vehicle_number'];
+		// $vehicle_no = $dd['vehicle_number'];
+
+
+		$client = new http\Client;
+		$request = new http\Client\Request;
+		$request->setRequestUrl('https://track.cxipl.com/api//v3/trips/create');
+		$request->setRequestMethod('POST');
+		$body = new http\Message\Body;
+		$body->append('{
+		 "vehicleNo": "TS 11 ZA 2093",
+		 "origin": {
+		 "locality": "komminenivaripalem",
+		 "city": "Mumbai",
+		 "state": "Maharastra"
+		 },
+		 "destination": {
+		 "locality": "madhapur",
+		 "city": "navi mumbai",
+		 "state": "Maharastra"
+		 },
+		
+		 "drivers": [ {
+		 "name": "Ajay",
+		 "phoneNumber": "8081315012",
+		 "endTime": "2023-01-22 18:30:00.000"
+		 },
+		 ],
+		 "docNumber": "FTLR100001" ,
+		 "category": "",
+		 "uuid": "",
+		 "branches":["Maharastra"],
+		 "customer":"Pritesh"
+		}');
+		$request->setBody($body);
+		$request->setOptions(array());
+		$request->setHeaders(array(
+		  'authkey' => 'NM6TLUSJDD7QKM421WVXA142143FY1BQ',
+		  'content-Type' => 'application/json',
+		  'Authorization' => 'Basic Og=='
+		));
+		$client->enqueue($request)->send();
+		$response = $client->getResponse();
+		echo $response->getBody();
+		
+
+		}
+		//echo $this->db->last_query();
+	}
+
+
+
+	public function Create_trip12()
+	{
+		
+$client = new http\Client;
+$request = new http\Client\Request;
+$request->setRequestUrl('https://track.cxipl.com/api//v3/trips/create');
+$request->setRequestMethod('POST');
+$body = new http\Message\Body;
+$body->append('{
+ "vehicleNo": "TS 11 ZA 2093",
+ "origin": {
+ "locality": "komminenivaripalem",
+ "city": "Mumbai",
+ "state": "Maharastra"
+ },
+ "destination": {
+ "locality": "madhapur",
+ "city": "navi mumbai",
+ "state": "Maharastra"
+ },
+
+ "drivers": [ {
+ "name": "Ajay",
+ "phoneNumber": "8081315012",
+ "endTime": "2023-01-22 18:30:00.000"
+ },
+ ],
+ "docNumber": "FTLR100001" ,
+ "category": "",
+ "uuid": "",
+ "branches":["Maharastra"],
+ "customer":"Pritesh"
+}');
+$request->setBody($body);
+$request->setOptions(array());
+$request->setHeaders(array(
+  'authkey' => 'NM6TLUSJDD7QKM421WVXA142143FY1BQ',
+  'content-Type' => 'application/json',
+  'Authorization' => 'Basic Og=='
+));
+$client->enqueue($request)->send();
+$response = $client->getResponse();
+echo $response->getBody();
+
+
+	}
+		
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+	// 	$captcha_response = '8081315012';
+
+	// 	if($captcha_response != '')
+	// 	{
+	// 		$keySecret = 'NM6TLUSJDD7QKM421WVXA142143FY1BQ';
+
+	// 		$check = array(
+	// 			'secret'		=>	$keySecret,
+	// 			'response'		=>	$captcha_response
+	// 		);
+
+	// 		$startProcess = curl_init();
+
+	// 		curl_setopt($startProcess, CURLOPT_URL, "https://track.cxipl.com/api");
+
+	// 		curl_setopt($startProcess, CURLOPT_POST, true);
+
+	// 		curl_setopt($startProcess, CURLOPT_POSTFIELDS, http_build_query($check));
+
+	// 	//	curl_setopt($startProcess, CURLOPT_SSL_VERIFYPEER, false);
+
+	// 	//	curl_setopt($startProcess, CURLOPT_RETURNTRANSFER, true);
+
+	// 		$receiveData = curl_exec($startProcess);
+
+	// 		$finalResponse = json_decode($receiveData, true);
+    //         echo json_decode($receiveData, true); exit;
+	// 		//print_r($finalResponse );exit;
+
+	// 		if($finalResponse['success'])
+	// 		{
+	// 			$storeData = array(
+	// 				'first_name'	=>	$this->input->post('first_name'),
+	// 				'last_name'		=>	$this->input->post('last_name'),
+	// 				'age'			=>	$this->input->post('age'),
+	// 				'gender'		=>	$this->input->post('gender')
+	// 			);
+
+	// 			$this->captcha_model->insert($storeData);
+
+	// 			$this->session->set_flashdata('success_message', 'Data Stored Successfully');
+
+	// 			redirect('captcha');
+	// 		}
+
+	// 	}
+	// }		
+
+// }
+	?>

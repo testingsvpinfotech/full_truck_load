@@ -1,0 +1,232 @@
+<?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class Admin_sales extends CI_Controller {
+
+	function __construct()
+	{
+		parent:: __construct();
+		$this->load->model('basic_operation_m');
+		$this->load->model('Login_model');
+		// if($this->session->userdata('userId') == '')
+		// {
+		// 	redirect('Admin_sales');
+		// }
+	}
+
+
+
+
+    public function index(){  
+   
+			$data				= $this->data;
+			
+			$data["message"]="";
+			$data["result"]=false;
+			$data['title']="Login";
+	
+			if($this->session->userdata('user_id') != '')
+			{
+				redirect(base_url().'Admin_sales/dashboard');
+				exit();
+			}
+			 
+			$data['company_details'] = $this->basic_operation_m->get_table_row('tbl_company',array('id'=>1));
+			
+			if(isset($_REQUEST['submit']))
+			{
+				if($this->input->post('username')!='' && $this->input->post('password')!='')
+				{
+					$usertype = '6';
+	                $username = $this->input->post('username');
+					$password = $this->input->post('password');
+					$key = $this->config->item('encryption_key');
+					$salt1 = hash('sha512', $key . $password);
+					$salt2 = hash('sha512', $password . $key);
+					$hashed_password = hash('sha512', $salt1 . $password . $salt2);
+                   
+					$res = $this->db->query("select * from  tbl_users where username = '$username' AND user_type = $usertype AND  c_password  = $password ")->row();
+				
+	                if(!empty($res)){
+					
+						$salesdata = array(
+
+							'username'=> $res->username,
+							'user_id'=> $res->user_id,
+							'user_type'=> $res->user_type,
+							'branch_id'=> $res->branch_id,
+
+						);
+					$d =	$this->session->set_userdata($salesdata);
+				
+					}
+					
+					if(!empty($res->user_id))
+					{ 
+						$this->session->set_userdata($salesdata);
+						redirect(base_url().'Admin_sales/dashboard');
+					}
+					else
+					{
+						$data["message"] = "Invalid Login";
+					}
+				}
+				else
+				{
+					$data["message"] = "Please Enter Username & Password";
+				}
+			}
+        $this->load->view('sales_login',$data);
+		
+	}
+
+    public function dashboard(){
+		if($this->session->userdata('user_id') == ''){
+			redirect('sales');
+		}else{
+		$data['total_ftl_request_data'] = $this->db->query('SELECT COUNT(`ftl_request_id`) as total FROM ftl_request_tbl')->row();	
+		$data['total_customer'] = $this->db->query('SELECT COUNT(customer_id) as total1 FROM ftl_request_tbl')->row();	
+        $this->load->view('sales_panel/view_dashboard');
+    } 
+  }
+
+    public function ftl_request(){
+		if($this->session->userdata('user_id') == ''){
+			redirect('sales');
+		}else{
+			$data['ftl_request_data'] = $this->db->query("SELECT ftl_request_tbl.* ,vehicle_type_master.vehicle_name  FROM ftl_request_tbl left join vehicle_type_master ON vehicle_type_master.id = ftl_request_tbl.type_of_vehicle ")->result_array(); 
+			$this->load->view('sales_panel/ftl_request_data',$data);
+    }
+ }
+
+    public function customer_list() {
+		if($this->session->userdata('user_id') == ''){
+			redirect('sales');
+		}else{
+        $user_id = $this->session->userdata('user_id');
+        $data['customer_data'] = $this->db->query("SELECT * FROM tbl_customers WHERE sales_person_id ='$user_id'")->result_array(); 
+        $this->load->view('sales_panel/customer_list',$data);
+        
+    }
+ }
+
+public function get_ftl_request_data(){
+
+	$id = $this->input->get('id');
+	$data =  $this->db->query("select * from ftl_request_tbl where ftl_request_id = '$id' ")->result_array();
+	//echo $this->db->last_query(); 
+	echo json_encode($data);
+	
+}
+
+public function update_request_data(){
+
+
+	$ftl_request_id = $this->input->post('ftl_request_id');
+	$amount = $this->input->post('amount');
+	$commissinon_amount = $this->input->post('commissinon_amount');
+	$updateStatus1 = $this->input->post('approved');
+	$updateStatus1 = $this->input->post('cancel');
+
+  //  print_r($updateStatus1);
+
+	$data = array(
+
+		'amount'=>$amount,
+		'commissinon_amount'=>$commissinon_amount,
+		'status'=>$updateStatus1,
+		//'status'=>$updateStatus2,
+
+	);
+//	print_r($data);
+	$this->db->where('ftl_request_id',$ftl_request_id);
+	$res = $this->db->update('ftl_request_tbl',$data);
+
+	if(!empty($res)) { 
+
+                     $output['message'] = 'Status Updated SuccessFully!';  
+                }  
+                else {
+					
+                     $output['message'] = 'Some Thing Went Wrong';  
+                }  
+   echo json_encode($output);
+	
+}
+
+
+public function ptl_list()
+{ 
+	if($this->session->userdata('user_id') == ''){
+		redirect('sales');
+	}else{  
+		$user_id = $this->session->userdata('user_id');
+		$data['get_customer_shipment'] = $this->db->query("SELECT tbl_domestic_booking.*,tbl_customers.cid,tbl_customers.customer_name
+		FROM `tbl_domestic_booking`
+		JOIN tbl_customers ON tbl_domestic_booking.customer_id = tbl_customers.customer_id
+		WHERE tbl_customers.sales_person_id = $user_id ")->result_array();
+		$this->load->view('sales_panel/ptl_list',$data);
+	}	
+}
+	
+	public function logout()
+	{
+		$this->session->unset_userdata("userName");
+		$this->session->unset_userdata("userId");
+		$this->session->unset_userdata("userType");
+		$this->session->unset_userdata("userPic");
+		$this->session->unset_userdata("customer_name");
+		$this->session->unset_userdata("customer_id");
+		$this->session->set_userdata("loggedin",false);
+		
+		$this->session->sess_destroy();
+		redirect('sales');
+	}
+
+	public function ptl_createExcel()
+    {
+		$user_id = $this->session->userdata('user_id');
+        $filename = 'application_' . date('Ymd') . '.csv';
+        header("Content-Description: File Transfer");
+        header("Content-Disposition: attachment; filename=$filename");
+        header("Content-Type: application/csv; ");
+        /* get data */
+		$get_customer_shipment = $this->db->query("SELECT tbl_domestic_booking.*,s.city as sender_city, r.city as reciever_city, tbl_customers.cid,tbl_customers.customer_name
+		FROM `tbl_domestic_booking`
+		JOIN tbl_customers ON tbl_domestic_booking.customer_id = tbl_customers.customer_id
+		left join city as s ON s.id = tbl_domestic_booking.sender_city
+		left join city as r ON r.id = tbl_domestic_booking.reciever_city
+		WHERE tbl_customers.sales_person_id = $user_id ")->result_array();
+
+        $file = fopen('php://output', 'w');
+        $header = array("AWB NO", "Customer Name","Customer ID","Booking Date", "Sender Pincode", "Sender City","Reciever Pincode","Reciever City", "Rate", "Amount");
+        fputcsv($file, $header);
+        foreach ($get_customer_shipment as $key => $line) {
+
+            $data = array(
+
+                $line['pod_no'],
+                $line['customer_name'],
+                $line['customer_id'],              
+                $line['booking_date'],
+                $line['sender_pincode'],
+                $line['sender_city'],
+                $line['reciever_pincode'],
+                $line['reciever_city'],
+                $line['rate'],
+                $line['sub_total'],
+            );
+
+
+            fputcsv($file, $data);
+        }
+        fclose($file);
+        exit;
+    }
+   
+
+
+
+} 

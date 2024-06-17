@@ -1,0 +1,168 @@
+<?php
+defined('BASEPATH') or exit('No direct script access allowed');
+
+class Admin_gatepass_in_scan extends CI_Controller
+{
+
+	function __construct()
+	{
+		parent::__construct();
+		$this->load->model('basic_operation_m');
+		if ($this->session->userdata('userId') == '') {
+			redirect('admin');
+		}
+	}
+
+	public function index()
+	{
+		$data = array();
+		$ress					=	$this->basic_operation_m->getAll('tbl_branch', '');
+		$data['all_branch']		= 	$ress->result();
+		$username = $this->session->userdata("userName");
+		$whr = array('username' => $username);
+		$res = $this->basic_operation_m->getAll('tbl_users', $whr);
+		$branch_id = $res->row()->branch_id;
+
+		$user_id = $res->row()->user_id;
+		$where = array('branch_id' => $branch_id);
+		$ress					=	$this->basic_operation_m->getAll('tbl_branch', $where);
+		$source_branch		= 	$ress->row()->branch_name;
+		$search = $this->input->post('gatepass_no');
+		$search2 = $this->input->post('bag_scan');
+		$user_id = $this->session->userdata('userId');
+		if ($search) {
+			$whr3 = array('gatepass_no'=>$search,'gatepass_in_scan'=>'0','genrate_bag' => '1','manifiest_verifed' => '0','destination_branch'=> $source_branch,'gatepass'=>'1');
+			$ress = $this->basic_operation_m->getAll('tbl_domestic_menifiest', $whr3);
+			
+		   // echo $this->db->last_query();die();
+			$data['result']		= 	$ress->result();
+		}else{
+			$whr3 = array('bag_no'=>$search2,'genrate_bag' => '1','gatepass_in_scan'=>'0','manifiest_verifed' => '0','source_branch'=> $source_branch,'gatepass'=>'1');
+			$ress = $this->basic_operation_m->getAll('tbl_domestic_menifiest', $whr3);
+			$data['result']		= 	$ress->result();
+		} 
+		$this->load->view('admin/Gatepass_in_scan/gatepass_in_scan_genrate', $data);
+	}
+	public function gatepass_in_scan_genrated()
+	{
+		$data = array();
+		$ress					=	$this->basic_operation_m->getAll('tbl_branch', '');
+		$data['all_branch']		= 	$ress->result();
+		$username = $this->session->userdata("userName");
+		$whr = array('username' => $username);
+		$res = $this->basic_operation_m->getAll('tbl_users', $whr);
+		$branch_id = $res->row()->branch_id;
+		$user_id = $res->row()->user_id;
+		$where = array('branch_id' => $branch_id);
+		$where = array('branch_id' => $branch_id);
+		$ress					=	$this->basic_operation_m->getAll('tbl_branch', $where);
+		$source_branch		= 	$ress->row()->branch_name;
+		$where1 = array('source_branch' => $source_branch, 'genrate_bag' => '0','manifiest_verifed'=>'1');
+		$ress					=	$this->basic_operation_m->getAll('tbl_bagmaster', $where);
+		$data['bag']		= 	$ress->result();
+		$ress					=	$this->basic_operation_m->getAll('tbl_domestic_menifiest', $where1);
+		$data['menifest']		= 	$ress->result();
+		// $search = $this->input->post('menifest');
+		$search2 = $this->input->post('bag_no');
+		$user_id = $this->session->userdata('userId');
+		if($user_id == '1'){
+            if ($this->input->post()) {
+				$where3 = array('bag_no'=>$search2, 'genrate_bag' => '1','manifiest_verifed'=>'0','gatepass'=>'1','gatepass'=>'1');
+				$ress					=	$this->basic_operation_m->getAll('tbl_domestic_menifiest', $where3);
+				$data['result']		= 	$ress->result();
+				//print_r($data['menifest']);die();
+			}else{
+				$where2 = array('genrate_bag' => '1','manifiest_verifed'=>'0','gatepass'=>'1','gatepass'=>'1');
+				$ress					=	$this->basic_operation_m->getAll('tbl_domestic_menifiest', $where2);
+				$data['result']		= 	$ress->result();
+			}
+		}else{
+		if ($this->input->post()) {
+			$where3 = array('destination_branch' => $source_branch, 'gatepass_in_scan'=>'1','bag_no'=>$search2,'genrate_bag' => '1','manifiest_verifed'=>'0','gatepass'=>'1','gatepass'=>'1');
+			$ress					=	$this->basic_operation_m->getAll('tbl_domestic_menifiest', $where3);
+			$data['result']		= 	$ress->result();
+			//print_r($data['menifest']);die();
+		}else{
+			$where2 = array('destination_branch' => $source_branch, 'gatepass_in_scan'=>'1', 'genrate_bag' => '1','manifiest_verifed'=>'0','gatepass'=>'1','gatepass'=>'1');
+			$ress					=	$this->basic_operation_m->getAll('tbl_domestic_menifiest', $where2);
+			$data['result']		= 	$ress->result();
+		}}
+		$this->load->view('admin/Gatepass_in_scan/view_gatepass_genrated', $data);
+	}
+
+
+	public function gatepass_genrated_in_scan()
+	{
+		$username = $this->session->userdata("userName");
+		$whr = array('username' => $username);
+		$res = $this->basic_operation_m->getAll('tbl_users', $whr);
+		$branch_id = $res->row()->branch_id;
+		$user_id = $res->row()->user_id;
+		$whr = array('branch_id' => $branch_id);
+		$res = $this->basic_operation_m->getAll('tbl_branch', $whr);
+		$branch_name = $res->row()->branch_name;
+
+		$where = array('branch_id' => $branch_id);
+		$ress					=	$this->basic_operation_m->getAll('tbl_branch', $where);
+		$source_branch		= 	$ress->row()->branch_name;
+		//print_r($branch_name);die();
+		if ($this->input->post()) {
+			$pod = $this->input->post('pod');
+			$manifiest_id = $this->input->post('manifiest_id');
+			//print_r($manifiest_id);die();
+			$where = array('pod_no' => $pod);
+			$result = $this->basic_operation_m->get_all_result('tbl_domestic_menifiest', $where);
+			$result1 = $this->basic_operation_m->get_all_result('tbl_domestic_booking', $where);
+			$all_data['pod_no'] = $this->input->post('pod');
+			$all_data['booking_id'] = $result1[0]['booking_id'];
+			$all_data['forwording_no'] = $result1[0]['forwording_no'];
+			$all_data['forworder_name'] = $result[0]['forwarder_name'];
+			$all_data['branch_name'] = $branch_name;
+			$all_data['added_branch'] = $branch_name;
+			$all_data['status'] = 'getpass-in-scan';  
+			$where_c = array('pod_no'=>$pod,'status'=>'getpass-in-scan');
+			$check = $this->basic_operation_m->get_all_result('tbl_domestic_booking', $where_c);
+			if(empty($check)){
+				$track = $this->basic_operation_m->insert('tbl_domestic_tracking', $all_data);
+			}
+        
+				$data = array( 
+					'gatepass_in_scan' => '1'
+				);
+
+				$whr4 = array('destination_branch'=>$source_branch,'manifiest_id' =>$manifiest_id);
+				$result5 = $this->basic_operation_m->update('tbl_domestic_menifiest',$data,$whr4);
+
+				$data1 = array( 
+					'menifiest_branches' => '   ',
+					'menifiest_recived' => '0'
+				);
+
+				$whr4 = array('pod_no'=>$pod);
+				$result5 = $this->basic_operation_m->update('tbl_domestic_booking',$data1,$whr4);
+
+				if ($result5) {
+
+					$msg = 'Something went wrong ';
+					$class	= 'alert alert-success alert-dismissible';
+
+					$this->session->set_flashdata('notify', $msg);
+					$this->session->set_flashdata('class', $class);
+					
+				} else {
+					
+					$msg = 'Gatepass Genrated successfully';
+					$class	= 'alert alert-success alert-dismissible';
+
+					$this->session->set_flashdata('notify', $msg);
+					$this->session->set_flashdata('class', $class);
+				}
+				redirect('admin/gatepass-in-scan');
+				
+			
+
+
+			$this->load->view('admin/Bagmaster/bag_genrate', $data);
+		}
+	}
+}
