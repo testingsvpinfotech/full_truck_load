@@ -1,0 +1,11 @@
+
+-----------------------------------Time :  2022-12-27 18:08:21 : addShipment-----------------------------------------------
+
+-----------------------------------INPUT JSON-----------------------------------------------
+{"actual_weight":"18","amount":"0.0","awb_charges":"0","awn":"test0101015","booking_date":"2022-12-27 6:06pm","breath":"40","breath_detail":"[40]","cgst":"","chargable_weight":"18","contactperson_name":"test","courier_charges":"","courier_company_id":"35","customer_id":"83","delivery_charges":"0","dispatch_details":"Credit","doc_type":"1","eway_no":"","fav_language":"","forworder_name":"SELF","forwording_no":"","fov_charges":"0.0","frieht":"0","fuel_subcharges":"0.0","grand_total":"0.0","height":"50","height_detail":"[50]","igst":"0.00","invoice_no":"9","invoice_value":"6600","length":"30","length_detail":"[30]","length_unit":"CM","mode_dispatch":"15","no_of_pack":"3","other_charges":"","payment_method":"0","per_box_weight":"6","per_box_weight_detail":"[6]","pickup_charges":"","receiver_gstno":"","receiver_zone":"North 1","receiver_zone_id":"6","reciever_address":"test","reciever_city":"171","reciever_contact":"9898989898","reciever_name":"test","reciever_pincode":"226001","reciever_state":"8","ref_no":"kk9","risk_type":"Customer","sender_address":"SURVEY NO156 174 157 167 GROUND LFR GOWDOWN, NO2 KOMPALLY LAND MARK BESIDE ASHOK LEYLAND MANDAL,","sender_city":"515","sender_contactno":"9037099902","sender_gstno":"36AABCA5291P1Z8","sender_name":"COFFEE DAY GLOBAL LIMITED","sender_pincode":"500014","sender_state":"18","sgst":"","special_instruction":"test","sub_total":"0.0","transportation_charges":"","type_of_doc":"Non-Doc","type_shipment":"Wooden Box","user_id":"238","valumetric_weight":"36.0","valumetric_weight_detail":"[36]"}
+-----------------------------------POST-----------------------------------------------
+[]
+-----------------------------------GET-----------------------------------------------
+[]
+-----------------------------------FILES-----------------------------------------------
+[]
