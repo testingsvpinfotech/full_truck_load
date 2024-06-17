@@ -42,4 +42,22 @@
 
          <link  href="<?php echo base_url(); ?>assets/dist/css/select2.min.css" rel="stylesheet" />
     </head>
+    <style>
+    .sidebar .sidebar-menu>li ul li:hover>.sub-menu {
+        max-height: 200px;
+        opacity: 1;
+        display: block;
+        overflow-y: scroll;
+    }
+
+    .dot {
+        font-size: 8px;
+        color: red;
+        margin: 0px;
+        padding: 0px;
+        top: -5px;
+        left: -4px;
+        position: relative;
+    }
+</style>
     <!-- END Head-->
