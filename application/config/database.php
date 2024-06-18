@@ -98,9 +98,9 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-    'hostname' => 'localhost',
+    'hostname' => 'boxnfrieght-8.czauyei6c20f.ap-south-1.rds.amazonaws.com',
     'username' => 'root',
-	'password' => '',
+	'password' => 'o301oAJgdcjV52bsacUP',
 	'port' => '',
 	'database' => 'full_truck_load',
 	'dbdriver' => 'mysqli',
