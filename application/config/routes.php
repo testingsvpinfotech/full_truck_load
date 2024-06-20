@@ -903,3 +903,11 @@ $route['courier-service-ftl-view/(:num)'] = 'Accounts/Courier_service/ftl_courie
 // ---------------- Unbill Shipments ------------------------------
 $route['unbill-shipments'] 		 = 'Accounts/Master/view_unbilled_shipments';
 $route['unbill-shipments/(:num)'] = 'Accounts/Master/view_unbilled_shipments/$1';
+
+//  Pincode Services 
+$route['admin/view-pincode-service'] = 'Admin_pincode_service/index';
+$route['admin/view-pincode-service/(:num)'] = 'Admin_pincode_service/index/$1';
+$route['admin/add-pincode-service'] = 'Admin_pincode_service/add_pincode';
+$route['admin/pincode-service-status'] = 'Admin_pincode_service/pincode_service_status';
+$route['admin/update-pincode-service/(:num)'] = 'Admin_pincode_service/update_pincode/$1';
+$route['admin/edit-pincode-service/(:num)'] = 'Admin_pincode_service/edit_pincode/$1';
