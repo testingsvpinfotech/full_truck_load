@@ -107,3 +107,13 @@ function mis_formate_columns($type){
 }
 
 
+function NumValidation($input,$msg,$url){
+     if(is_numeric($input) !='1'){
+        $class			= 'alert alert-danger alert-dismissible';
+        $this->session->set_flashdata('notify', $msg);
+        $this->session->set_flashdata('class', $class);
+        redirect($url);
+     }
+}
+
+

@@ -86,3 +86,50 @@ defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest auto
 
 // BY SNEHAL
 define('SEGMENT', 2);
+
+$data = [
+    '1'=>'Regular',
+    '2'=>'ODA',
+    '3'=>'NSS'
+];
+define('service_type', $data);
+
+// Vehicle wheel Type
+$wheel = [
+    '1'=>'4 wheel',
+    '2'=>'6 wheel',
+    '3'=>'10 wheel'
+];
+define('vehicle_wheel_type', $wheel);
+
+$floor_type = [
+    '1'=>'Plywood',
+    '2'=>'Rubber'
+];
+define('vehicle_floor_type', $floor_type);
+
+// parcel type
+$parcel = [
+    '1'=>'Wooden Box',
+    '2'=>'Carton',
+    '3'=>'Drum',
+    '4'=>'Plastic Wrap',
+    '5'=>'Gunny Bag',
+];
+define('parcel_type', $parcel);
+// loading type
+$parcel = [
+    '1'=>'SELF',
+    '2'=>'Vendor'
+];
+define('loading_type', $parcel);
+// Weight Type
+$parcel = [
+    '1'=>'TON',
+    '2'=>'KG'
+];
+define('weight_type', $parcel);
+
+
+
+

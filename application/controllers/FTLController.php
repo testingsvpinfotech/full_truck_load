@@ -212,135 +212,6 @@ public function get_ftl_details(){
 		$this->load->view('admin/ftl_master/lr_printlabel', $data);
 	}
 
-	public function ftl_request_list()
-	{
-		$data['ftl_request_data'] = $this->db->query("SELECT ftl_request_tbl.* ,vehicle_type_master.vehicle_name  FROM ftl_request_tbl left join vehicle_type_master ON vehicle_type_master.id = ftl_request_tbl.type_of_vehicle ")->result_array();
-		$this->load->view('admin/ftl_master/ftl_request_list', $data);
-	}
-
-	public function add_ftl_request()
-	{
-		$customer_id = $this->input->post('customer_id');
-		if ($customer_id) {
-			$customer_name = $this->db->get_where('tbl_customers', ['customer_id' => $customer_id])->row('customer_name');
-		}
-
-		$user_id = $this->session->userdata('userId');
-		$date = $this->input->post('date');
-		$time1 = $this->input->post('time');
-		$time = date('H:i:sA', strtotime($time1));
-		$request_date_time = $date . " " . $time;
-		//print_r($request_date_time);exit;
-
-		if (isset($_POST['submit'])) {
-
-
-			$data = array(
-
-				'order_date' => $this->input->post('order_date'),
-				'vehicle_temperature_log' => $this->input->post('temperature_log'),
-				'maintain_temperature_time' => $this->input->post('maintain_temperature_time'),
-				'customer_id' => $customer_id,
-				'customer_name' => $customer_name,
-				'ftl_request_id' => $this->input->post('ftl_request_id'),
-				// 'risk_type' => $this->input->post('risk_type'),
-				'descrption' => $this->input->post('descrption'),
-				'request_date_time' => $request_date_time,
-				'origin_city' => $this->input->post('origin_city'),
-				'origin_pincode' => $this->input->post('origin_pincode'),
-				'origin_state' => $this->input->post('origin_state'),
-				'destination_state' => $this->input->post('destination_city'),
-				'destination_city' => $this->input->post('destination_state'),
-				'destination_pincode' => $this->input->post('destination_pincode'),
-				'type_of_vehicle' => $this->input->post('type_of_vehicle'),
-				'vehicle_capacity' => $this->input->post('vehicle_capacity'),
-				'vehicle_body_type' => $this->input->post('vehicle_body_type'),
-				'vehicle_gps' => $this->input->post('vehicle_gps'),
-				'vehicle_floor_type' => $this->input->post('vehicle_floor_type'),
-				'vehicle_wheel_type' => $this->input->post('vehicle_wheel_type'),
-				'goods_type' => $this->input->post('goods_type'),
-				'goods_weight' => $this->input->post('goods_weight'),
-				'goods_weight' => $this->input->post('goods_weight'),
-				'weight_type' => $this->input->post('weight_type'),
-				'amount' => $this->input->post('amount'),
-				'goods_value' => $this->input->post('goods_value'),
-				'customer_type' => $this->input->post('customer_type'),
-				'pickup_address' => $this->input->post('pickup_address'),
-				'loading_type' => $this->input->post('loading_type'),
-				'unloading_type' => $this->input->post('unloading_type'),
-				'contact_number' => $this->input->post('contact_number'),
-				'delivery_address' => $this->input->post('delivery_address'),
-				'delivery_contact_no' => $this->input->post('delivery_contact_no'),
-				'type_parcel' => $this->input->post('type_parcel'),
-				'insurance_by' => $this->input->post('insurance_by'),
-				'cfo_charges' => $this->input->post('cfo_charges'),
-				'delivery_contact_person_name' => $this->input->post('delivery_contact_person_name'),
-				'order_created_by' => $user_id,
-
-				'consignee_name' => $this->input->post('consignee_name'),
-				'consignee_address' => $this->input->post('consignee_address'),
-				'consignee_pincode' => $this->input->post('consignee_pincode'),
-				'consignee_state' => $this->input->post('consignee_state'),
-				'consignee_city' => $this->input->post('consignee_city'),
-				'consignee_contact_no' => $this->input->post('consignee_contact_no'),
-				'user_type' => '1'
-
-			);
-			//   echo '<pre>'; print_r($data);
-			$result = $this->db->insert('ftl_request_tbl', $data);
-			//   echo $this->db->last_query();exit;
-
-			// $last_id = $this->db->insert_id();
-			// $data2 = array(
-			// 	'ftl_id' => $last_id,
-			// 	'consignee_name' => $this->input->post('consignee_name'),
-			// 	'consignee_address' => $this->input->post('consignee_address'),
-			// 	'consignee_pincode' => $this->input->post('consignee_pincode'),
-			// 	'consignee_state' => $this->input->post('consignee_state'),
-			// 	'consignee_city' => $this->input->post('consignee_city'),
-			// 	'consignee_contact_no' => $this->input->post('consignee_contact_no'),
-
-			// );
-			// $result = $this->db->insert('ftl_consignee_tbl', $data2);
-
-			if (!empty($result)) {
-				$msg			= 'FTL Request inserted successfully';
-				$class			= 'alert alert-success alert-dismissible';
-			} else {
-				$msg			= 'FTL Request not added';
-				$class			= 'alert alert-danger alert-dismissible';
-			}
-			$this->session->set_flashdata('notify', $msg);
-			$this->session->set_flashdata('class', $class);
-
-			redirect('admin/view-ftl-request');
-		} else {
-
-
-			$result 		= $this->db->query('select max(id) AS id from ftl_request_tbl')->row();
-			$id = $result->id + 1;
-
-			if (strlen($id) == 2) {
-				$id = 'FTLR1000' . $id;
-			} elseif (strlen($id) == 3) {
-				$id = 'FTLR100' . $id;
-			} elseif (strlen($id) == 1) {
-				$id = 'FTLR10000' . $id;
-			} elseif (strlen($id) == 4) {
-				$id = 'FTLR10' . $id;
-			} elseif (strlen($id) == 5) {
-				$id = 'FTLR1' . $id;
-			}
-			$data['FTTLR_id'] = $id;
-			$data['customer'] = $this->db->query('SELECT * FROM tbl_customers where ftl_customer = 1')->result();
-			$data['vehicle_type'] = $this->db->query('SELECT * FROM vehicle_type_master')->result();
-			$data['goods_name'] = $this->db->query('SELECT * FROM goods_type_tbl')->result();
-			$data['goods_name'] = $this->db->query('SELECT * FROM goods_type_tbl')->result();
-			$this->load->view('admin/ftl_master/add_ftl_request', $data);
-		}
-	}
-
-
 	public function update_ftl_request($id)
 	{
 			$customer_id = $this->input->post('customer_id');
@@ -400,17 +271,15 @@ public function get_ftl_details(){
 					'cfo_charges' => $this->input->post('cfo_charges'),
 					'delivery_contact_person_name' => $this->input->post('delivery_contact_person_name'),
 
-					'consignee_name' => $this->input->post('consignee_name'),
-					'consignee_address' => $this->input->post('consignee_address'),
-					'consignee_pincode' => $this->input->post('consignee_pincode'),
-					'consignee_state' => $this->input->post('consignee_state'),
-					'consignee_city' => $this->input->post('consignee_city'),
-					'consignee_contact_no' => $this->input->post('consignee_contact_no'),
+				
 
 					'order_created_by' => $user_id,
 					'user_type' => '1'
 	
 				);
+
+				
+
 				//   echo '<pre>'; print_r($data);
 				$result = $this->db->update('ftl_request_tbl',$whr, $data);
 				//   echo $this->db->last_query();exit;
@@ -534,6 +403,102 @@ public function get_ftl_details(){
 		$vehicle_id = $this->input->post('vehicle_id');
 		$data = $this->db->query("SELECT * FROM vehicle_type_master where id = '$vehicle_id'")->result_array();
 		// echo $this->db->last_query();
+		echo json_encode($data);
+	}
+
+
+	public function getCityList()
+	{
+		$data = array();
+
+		$pincode = $this->input->post('pincode');
+		$booking_date = $this->input->post('booking_date');
+		$mode_dispatch = $this->input->post('mode_dispatch');
+		$sender_city = $this->input->post('sender_city');
+		$sender_state = $this->input->post('sender_state');
+
+		$whr1 = array('pin_code' => $pincode,'isdeleted'=>0);
+		$res1 = $this->basic_operation_m->selectRecord('pincode', $whr1);
+
+
+		$pin_code = @$res1->row()->pin_code;
+		$city_id = @$res1->row()->city_id;
+		$state_id = @$res1->row()->state_id;
+		$isODA = @$res1->row()->isODA;
+
+		if ($state_id) {
+			$whr2 = array('id' => $state_id);
+			$res2 = $this->basic_operation_m->get_table_row('state', $whr2);
+			$statecode = $res2->statecode;
+
+		}
+
+		if (!$pin_code) {
+			$data['status'] = "failed";
+			$data['message'] = "The pin code <b> ".$pincode." </b> is NSS (No Service Station).<br>To add this pin code in system, please contact your Admin/Manager.";
+			echo json_encode($data);
+			exit();
+		}
+		$data['status'] = "success";
+		$whr2 = array('id' => $city_id);
+		$res2 = $this->basic_operation_m->get_table_row('city', $whr2);
+		$pincode_city = $res2->id;
+
+		$city_list = $this->basic_operation_m->get_all_result('city', '');
+
+		$resAct = $this->db->query("select service_pincode.*,courier_company.c_id,courier_company.c_company_name from service_pincode JOIN courier_company on courier_company.c_id=service_pincode.forweder_id where pincode='" . $pincode . "' order by serv_pin_id DESC ");
+
+
+		$data['forwarder'] = array();
+		if ($resAct->num_rows() > 0) {
+			$data['forwarder'] = $resAct->result_array();
+		}
+
+		$option = "";
+		$forwarder = "";
+		foreach ($city_list as $value) {
+			if ($value["id"] == $pincode_city) {
+				$selected = "selected";
+			} else {
+				$selected = "";
+			}
+			$option .= '<option value="' . $value["id"] . '" ' . $selected . ' >' . $value["city"] . '</option>';
+		}
+
+		if (!empty($data['forwarder'])) {
+			foreach ($data['forwarder'] as $key => $value) {
+				$servicable = '';
+				
+
+				if ($value['oda'] == 1) {
+
+					$servicable = ' - ODA Available';
+
+				} else {
+					// $servicable = ' ODA Available';
+				}
+				$forwarder .= "<option value='" . $value["c_company_name"] . "'>" . $value["c_company_name"] . "" . $servicable . "</option>";
+			}
+		}
+		$pincode = $this->input->post('pincode');
+		$final_branch = $this->db->query("select branch_id from tbl_branch_service where pincode = '$pincode'")->row();
+		$branch_id = $final_branch->branch_id;
+		$final_branch_name = $this->db->query("select branch_name from tbl_branch where branch_id = '$branch_id'")->row();
+		$forwarder .= "<option value='SELF' selected>SELF</option>";
+		unset($data['forwarder']);
+		$data['message'] = "";
+		$data['option'] = $option;
+	
+		$data['final_branch_id'] = $final_branch->branch_id;
+		$data['final_branch_name'] = $final_branch_name->branch_name;
+		$data['forwarder2'] = $forwarder;
+		$data['city_id'] = $city_id;
+		$data['state_id'] = $state_id;
+		$data['statecode'] = $statecode;
+		$data['edd_date'] = isset($edd_date) ? date('d-m-Y', strtotime($edd_date)) : " ";
+		// $data['edd_date'] = isset($edd_date) ? date('d-m-Y', strtotime($edd_date)) : date('d-m-Y');
+		$data['edd_days'] = !empty($EDD) ? $EDD : '';
+
 		echo json_encode($data);
 	}
 }

@@ -916,3 +916,270 @@ function calculate_cft(){
 				$('#submit1').click();
 			}
     	}
+
+/****************************************************************** FTL (FULL TRUCK LOAD) start**************************/
+// Basic validations 
+(function ($) {
+	$.fn.inputFilter = function (callback, errMsg) {
+		return this.on("input keydown keyup mousedown mouseup select contextmenu drop focusout", function (e) {
+			if (callback(this.value)) {
+				// Accepted value
+				if (["keydown", "mousedown", "focusout"].indexOf(e.type) >= 0) {
+					$(this).removeClass("input-error");
+					this.setCustomValidity("");
+				}
+				this.oldValue = this.value;
+				this.oldSelectionStart = this.selectionStart;
+				this.oldSelectionEnd = this.selectionEnd;
+			} else if (this.hasOwnProperty("oldValue")) {
+				// Rejected value - restore the previous one
+				$(this).addClass("input-error");
+				this.setCustomValidity(errMsg);
+				this.reportValidity();
+				this.value = this.oldValue;
+				this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);
+			} else {
+				// Rejected value - nothing to restore
+				this.value = "";
+			}
+		});
+	};
+}(jQuery));
+
+	// Integer value allowed only 
+	$("#sender_pincode,#sender_contactno,#reciever_pincode,#reciever_contact,#no_of_pack1,.per_box_weight,.manifest_driver_contact,.manifest_coloader_contact,#credit_days,#pincode,#cmppincode,#origin_pincode").inputFilter(function (value) {
+		return /^\d*$/.test(value);    // Allow digits only, using a RegExp
+	}, "Only Numbers allowed");
+
+	// Decimal value allowed only 
+	$('#invoice_value,#actual_weight,#chargable_weight,.length,.breath,.height,.valumetric_actual,#credit_limit,.billing_amount').keypress(function (event) {
+		if (((event.which != 46 || (event.which == 46 && $(this).val() == '')) ||
+			$(this).val().indexOf('.') != -1) && (event.which < 48 || event.which > 57) || $(this).val().indexOf('.') !== -1 && event.keyCode == 190) {
+			event.preventDefault();
+		}
+	}).on('paste', function (event) {
+		event.preventDefault();
+	});
+
+	$('.fillter').select2();
+
+
+	
+
+	// Indent Tripsheet from 
+	$("#consignee_pincode").on('blur', function () {
+		var pincode = $(this).val();
+		if (pincode != '' || pincode != 'null' || pincode !='0') {
+			$.ajax({
+				type: 'POST',
+				url: 'FTLController/getCityList',
+				data: 'pincode=' + pincode,
+				dataType: "json",
+				success: function (data) {
+					if (data.status == 'failed') {
+						$('#consignee_city').val("");
+						$('#consignee_state').val("");
+						alertify.alert(data.message,
+							function () {
+								alertify.success('Ok');
+							});
+						return false;
+					} else {
+						$('#consignee_city').val(data.city_id);
+						$('#consignee_state').val(data.state_id);
+					}
+					$("#consignee_city").trigger("change");
+					$("#consignee_state").trigger("change");
+				}
+			});
+			$("#consignee_state").trigger("change");
+		}
+	});
+	//  Origin pincode
+	$("#origin_pincode").on('blur', function () {
+		var pincode = $(this).val();
+		if (pincode != '' || pincode != 'null' || pincode !='0') {
+			$.ajax({
+				type: 'POST',
+				url: 'FTLController/getCityList',
+				data: 'pincode=' + pincode,
+				dataType: "json",
+				success: function (data) {
+					if (data.status == 'failed') {
+						$('#origin_city_id').val("");
+						$('#origin_state_id').val("");
+						alertify.alert(data.message,
+							function () {
+								alertify.success('Ok');
+							});
+						return false;
+					} else {
+						$('#origin_city_id').val(data.city_id);
+						$('#origin_state_id').val(data.state_id);
+					}
+					$("#origin_city_id").trigger("change");
+					$("#origin_state_id").trigger("change");
+				}
+			});
+			$("#origin_state_id").trigger("change");
+		}
+	});
+	//  Destination pincode
+	$("#destination_pincode").on('blur', function () {
+		var pincode = $(this).val();
+		if (pincode != '' || pincode != 'null' || pincode !='0') {
+			$.ajax({
+				type: 'POST',
+				url: 'FTLController/getCityList',
+				data: 'pincode=' + pincode,
+				dataType: "json",
+				success: function (data) {
+					if (data.status == 'failed') {
+						$('#destination_city').val("");
+						$('#destination_state_id').val("");
+						alertify.alert(data.message,
+							function () {
+								alertify.success('Ok');
+							});
+						return false;
+					} else {
+						$('#destination_city').val(data.city_id);
+						$('#destination_state_id').val(data.state_id);
+					}
+					$("#destination_city").trigger("change");
+					$("#destination_state_id").trigger("change");
+				}
+			});
+			$("#destination_state_id").trigger("change");
+		}
+	});
+
+	// indent genration 
+	$("#customer").change(function() {
+		getConssignee();
+	});
+
+	function getConssignee(){
+		   var val = $('#customer').val();
+			if (val == "2") {
+			  $(".consignee_details").show();
+			  $(".target_rate").prop('required',true);
+			  $("#target_rate").prop("readonly",false);
+			  $(".consignor_details").hide();
+			}
+			if (val == "1") {
+			  $(".consignee_details").hide();
+			  $(".target_rate").prop('required',true);
+			  $("#target_rate").prop("readonly",true);
+			  $(".consignor_details").show();
+			}
+			}
+
+	$("#vehicle_id").on('change ', function() {
+		// var current_date = $('#current_date').val();
+		var customer_id = $('#customer_id').val();
+		var vehicle_id = $('#vehicle_id').val();
+		var origin_city_id = $('.origin_city_id').val();
+		var destination_city_id = $('.destination_city_id').val();
+		// alert(customer_id);
+		if (customer_id != null || customer_id != '') {
+  
+		  $.ajax({
+			type: 'POST',
+			url: 'AdminFTL_indent/gat_rfq_customer_data',
+			data: 'customer_id=' + customer_id + '&vehicle_id=' + vehicle_id + '&origin_city_id=' + origin_city_id + '&destination_city_id=' + destination_city_id,
+			dataType: "json",
+			success: function(data) {
+			    if(data ==''){
+					alert("Target Rate not Defind \nplease define rate.");
+					$("#target_rate").prop('required',true);
+					$('#target_rate').val('');
+					$("#target_rate").prop("readonly",true);
+				}else{
+			      $('#target_rate').val(data.rate);
+				  $("#target_rate").prop("readonly",false);
+				}
+			},
+			error: function(XMLHttpRequest, textStatus, errorThrown) {
+			   alert("Target Rate not Defind \nplease define rate.");
+			}
+  
+		  });
+		}  
+	});
+
+	$(function() {
+	var dtToday = new Date();
+
+	var month = dtToday.getMonth() + 1;
+	var day = dtToday.getDate();
+	var year = dtToday.getFullYear();
+	if (month < 10)
+		month = '0' + month.toString();
+	if (day < 10)
+		day = '0' + day.toString();
+	var maxDate = year + '-' + month + '-' + day;
+	$('#inputdate').attr('min', maxDate);
+	});
+
+	  $("#loading_type").change(function() {
+		if ($(this).val() == '2') {
+		  $('#show_vendor_msg').modal('show');
+		}
+	  });
+	
+	  $(".confirmation_vendor").click(function() {
+		$('#show_Unload_vendor_confr').modal('show');
+	  });
+	
+	
+	  // ***************** Unloding *******************************
+	
+	  $("#Unloading_type").change(function() {
+		if ($(this).val() == '2') {
+		  $('#show_Unload_vendor_msg').modal('show');
+		}
+	  });
+	
+	  $(".confirmation_unload_vendor").click(function() {
+		$('#show_Unload_vendor_confr').modal('show');
+	  });
+	
+	  // ***************** Resktype *******************************
+	
+	  $("#insurance_by").change(function() {
+		if ($(this).val() == '1') {
+		  $('#risk').modal('show');
+		  $('#cfo_charges_data').show();
+		}else{
+		  $('#cfo_charges_data').hide();
+		}
+	  });
+	  
+	
+	
+	  $('.get_vehical_type').change(function() {
+		base_url = '<?php echo base_url(); ?>';
+		var vehicle_id = $(this).val();
+		$.ajax({
+		  url: base_url + "FTLController/getVehicleCapicty",
+		  type: 'POST',
+		  data: {
+			vehicle_id: vehicle_id
+		  },
+		  dataType: 'json',
+		  success: function(d) {
+			//  var objectX = JSON.parse(d);
+			console.log(d);
+			// alert(d);
+			$('#vehicle_capicty').val(d[0].capicty);
+			$('#vehicle_body_type').val(d[0].body_type);
+	
+		  }
+		});
+	  });
+
+
+
+
+/****************************************************************** FTL (FULL TRUCK LOAD) end **************************/

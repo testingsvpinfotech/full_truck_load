@@ -648,9 +648,8 @@ $route['admin/download_pod/(:num)']				    = 'Downloadpod/download_pod/$1';
 //************************************* FTL Master *******************************************
 
 $route['admin/add-lr']	                 = 'FTLController/index'; 
-$route['admin/view-ftl-request']	     = 'FTLController/ftl_request_list';   
-$route['admin/add-ftl-request']	     = 'FTLController/add_ftl_request';   
-$route['admin/update_ftl_request/(:num)']	  = 'FTLController/update_ftl_request/$1';   
+
+
 $route['admin/add-lr-data']	             = 'FTLController/insert_lr_details';   
 $route['admin/FTL-List']	             = 'FTLController/view_ftl_list';   
 $route['admin/lr-printlabel/(:num)']	 = 'FTLController/view_lr_printlabel/$1';   
@@ -911,3 +910,10 @@ $route['admin/add-pincode-service'] = 'Admin_pincode_service/add_pincode';
 $route['admin/pincode-service-status'] = 'Admin_pincode_service/pincode_service_status';
 $route['admin/update-pincode-service/(:num)'] = 'Admin_pincode_service/update_pincode/$1';
 $route['admin/edit-pincode-service/(:num)'] = 'Admin_pincode_service/edit_pincode/$1';
+
+
+// inddent genration 
+$route['admin/view-ftl-request']	     = 'AdminFTL_indent/index';   
+$route['admin/view-ftl-request/(:any)']	     = 'AdminFTL_indent/index/$1';   
+$route['admin/add-ftl-request']	     = 'AdminFTL_indent/add_ftl_request';   
+$route['admin/update_ftl_request/(:num)']	  = 'AdminFTL_indent/update_ftl_request/$1';   
