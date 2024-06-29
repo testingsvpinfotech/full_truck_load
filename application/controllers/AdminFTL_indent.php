@@ -50,9 +50,10 @@ ini_set('display_errors', 1);
     
     		$user_id 	= $this->session->userdata("userId");		
     		$data['customer']=  $this->basic_operation_m->get_query_result_array('SELECT * FROM tbl_customers WHERE 1 ORDER BY customer_name ASC');
-    		
+    		$month = date('m');
+			$year = date('Y');
     		$user_type 					= $this->session->userdata("userType");			
-    		$filterCond					= " tbl_indent_tripsheet.customer_id =702";
+    		$filterCond					= " AND MONTH(tbl_indent_tripsheet.request_date_time) = '$month' AND YEAR(tbl_indent_tripsheet.request_date_time) = '$year'";
     		$all_data 					= $this->input->get();
 			$customer_id ='';
 			$from_date ='';
@@ -68,6 +69,7 @@ ini_set('display_errors', 1);
 						{
 							if(!empty($filter_value)){
 								$indent_no   = $filter_value;
+								$filterCond .= " AND tbl_indent_tripsheet.ftl_request_id = '$filter_value'";
 							}
 							
 						}							
@@ -75,35 +77,71 @@ ini_set('display_errors', 1);
 						{
 							$city_info					 =  $this->basic_operation_m->get_table_row('city', "city='$filter_value'");
 							$origin_city 	= $city_info->id;
+							$filterCond .= " AND tbl_indent_tripsheet.origin_city = '$origin_city'";
 						}
 						if($vall == 'destination_city')
 						{
 							$city_info					 =  $this->basic_operation_m->get_table_row('city', "city='$filter_value'");
 							$destination_city 				= $city_info->id;
+							$filterCond .= " AND tbl_indent_tripsheet.destination_city = '$destination_city'";
 						}						
 					}	
 			  	}
                  if(!empty($_GET['from_date']) && !empty($_GET['to_date'])){
 					 $from_date = $_GET['from_date'];
 					 $to_date = $_GET['to_date'];
-					$filterCond .= " DATE(tbl_indent_tripsheet.request_date_time) BETWEEN '$from_date' AND '$to_date'";
+					$filterCond .= " AND DATE(tbl_indent_tripsheet.request_date_time) BETWEEN '$from_date' AND '$to_date'";
 				 }
                  if(!empty($_GET['user_id'])){
 					 $customer_id = $_GET['user_id'];
-					$filterCond .= " tbl_indent_tripsheet.customer_id ='$customer_id'";
+					$filterCond .= " AND tbl_indent_tripsheet.customer_id ='$customer_id'";
 				 }
-
 			}
 			if(!empty($searching))
 			{
 				$filterCond = urldecode($searching);
 			}
 				
-				$resActt = $this->db->query("CALL View_indent(?,?,?,?,?,?)", [$indent_no,$origin_city,$destination_city,$from_date,$to_date,$customer_id]);
-				$resAct = $this->db->query("CALL View_indent(?,?,?,?,?,?)", [$indent_no,$origin_city,$destination_city,$from_date,$to_date,$customer_id]);
-			
-				echo $this->db->last_query();die();
-			//	$download_query 		= "SELECT tbl_domestic_booking.*,city.city,tbl_domestic_weight_details.chargable_weight,tbl_domestic_weight_details.no_of_pack,payment_method  FROM tbl_domestic_booking LEFT JOIN city ON tbl_domestic_booking.reciever_city = city.id LEFT JOIN tbl_domestic_weight_details ON tbl_domestic_weight_details.booking_id = tbl_domestic_booking.booking_id WHERE booking_type = 1 AND company_type='Domestic' AND tbl_domestic_booking.user_type !=5 $filterCond  GROUP BY tbl_domestic_booking.booking_id order by tbl_domestic_booking.booking_id DESC";
+				$resActt = $this->db->query("SELECT tbl_indent_tripsheet.ftl_request_id,tbl_indent_tripsheet.order_date,tbl_indent_tripsheet.order_time,tbl_indent_tripsheet.request_date_time,
+								tbl_indent_tripsheet.consignee_name,tbl_indent_tripsheet.consignee_address,tbl_indent_tripsheet.consignee_contact_no,tbl_indent_tripsheet.consignee_pincode,
+								cc.city AS consigne_city,cs.state AS consigne_state,tbl_customers.cid,tbl_customers.customer_name AS cust_name,oc.city AS o_city,os.state AS o_state,
+								dc.city AS d_city,ds.state AS d_state,tbl_goods_type.goods_name,tbl_vehicle_type.vehicle_name,tbl_indent_tripsheet.vehicle_wheel_type,tbl_indent_tripsheet.vehicle_capacity,
+								tbl_indent_tripsheet.vehicle_gps,tbl_indent_tripsheet.vehicle_floor_type,tbl_indent_tripsheet.type_parcel,tbl_indent_tripsheet.insurance_by,tbl_indent_tripsheet.goods_weight,
+								tbl_indent_tripsheet.goods_value,tbl_indent_tripsheet.pickup_address,tbl_indent_tripsheet.delivery_address,tbl_indent_tripsheet.contact_number,tbl_indent_tripsheet.descrption,
+								tbl_indent_tripsheet.delivery_contact_no,tbl_indent_tripsheet.weight_type,tbl_indent_tripsheet.loading_type,tbl_indent_tripsheet.unloading_type,tbl_indent_tripsheet.amount,tbl_indent_tripsheet.total_amount,
+								tbl_indent_tripsheet.id,tbl_indent_tripsheet.user_type,tbl_users.username,tbl_users.full_name AS created_by,tbl_indent_tripsheet.`status`,tbl_indent_tripsheet.customer_id
+								FROM tbl_indent_tripsheet 
+								JOIN tbl_goods_type ON tbl_goods_type.id = tbl_indent_tripsheet.goods_type
+								JOIN tbl_vehicle_type ON tbl_vehicle_type.id = tbl_indent_tripsheet.type_of_vehicle
+								JOIN city AS oc ON oc.id = tbl_indent_tripsheet.origin_city
+								JOIN state AS os ON os.id = tbl_indent_tripsheet.origin_state
+								JOIN city AS dc ON dc.id = tbl_indent_tripsheet.destination_city
+								JOIN state AS ds ON ds.id = tbl_indent_tripsheet.destination_state
+								JOIN tbl_users ON tbl_users.user_id = tbl_indent_tripsheet.order_created_by
+								LEFT JOIN tbl_customers ON tbl_customers.customer_id = tbl_indent_tripsheet.customer_id
+								LEFT JOIN city AS cc ON cc.id = tbl_indent_tripsheet.consignee_city
+								LEFT JOIN state AS cs ON cs.id = tbl_indent_tripsheet.consignee_state
+								WHERE 1=1 $filterCond");
+				$resAct = $this->db->query("SELECT tbl_indent_tripsheet.ftl_request_id,tbl_indent_tripsheet.order_date,tbl_indent_tripsheet.order_time,tbl_indent_tripsheet.request_date_time,
+								tbl_indent_tripsheet.consignee_name,tbl_indent_tripsheet.consignee_address,tbl_indent_tripsheet.consignee_contact_no,tbl_indent_tripsheet.consignee_pincode,
+								cc.city AS consigne_city,cs.state AS consigne_state,tbl_customers.cid,tbl_customers.customer_name AS cust_name,oc.city AS o_city,os.state AS o_state,
+								dc.city AS d_city,ds.state AS d_state,tbl_goods_type.goods_name,tbl_vehicle_type.vehicle_name,tbl_indent_tripsheet.vehicle_wheel_type,tbl_indent_tripsheet.vehicle_capacity,
+								tbl_indent_tripsheet.vehicle_gps,tbl_indent_tripsheet.vehicle_floor_type,tbl_indent_tripsheet.type_parcel,tbl_indent_tripsheet.insurance_by,tbl_indent_tripsheet.goods_weight,
+								tbl_indent_tripsheet.goods_value,tbl_indent_tripsheet.pickup_address,tbl_indent_tripsheet.delivery_address,tbl_indent_tripsheet.contact_number,tbl_indent_tripsheet.descrption,tbl_indent_tripsheet.delivery_contact_person_name as d_contact_name,
+								tbl_indent_tripsheet.delivery_contact_no,tbl_indent_tripsheet.weight_type,tbl_indent_tripsheet.loading_type,tbl_indent_tripsheet.unloading_type,tbl_indent_tripsheet.amount,tbl_indent_tripsheet.total_amount,
+								tbl_indent_tripsheet.id,tbl_indent_tripsheet.user_type,tbl_users.username,tbl_users.full_name AS created_by,tbl_indent_tripsheet.`status`,tbl_indent_tripsheet.customer_id,tbl_indent_tripsheet.origin_pincode as o_pincode,tbl_indent_tripsheet.destination_pincode as d_pincode
+								FROM tbl_indent_tripsheet 
+								JOIN tbl_goods_type ON tbl_goods_type.id = tbl_indent_tripsheet.goods_type
+								JOIN tbl_vehicle_type ON tbl_vehicle_type.id = tbl_indent_tripsheet.type_of_vehicle
+								JOIN city AS oc ON oc.id = tbl_indent_tripsheet.origin_city
+								JOIN state AS os ON os.id = tbl_indent_tripsheet.origin_state
+								JOIN city AS dc ON dc.id = tbl_indent_tripsheet.destination_city
+								JOIN state AS ds ON ds.id = tbl_indent_tripsheet.destination_state
+								JOIN tbl_users ON tbl_users.user_id = tbl_indent_tripsheet.order_created_by
+								LEFT JOIN tbl_customers ON tbl_customers.customer_id = tbl_indent_tripsheet.customer_id
+								LEFT JOIN city AS cc ON cc.id = tbl_indent_tripsheet.consignee_city
+								LEFT JOIN state AS cs ON cs.id = tbl_indent_tripsheet.consignee_state
+								WHERE 1=1 $filterCond");
 
 				$this->load->library('pagination');
 			
