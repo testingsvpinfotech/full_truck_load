@@ -141,7 +141,7 @@ ini_set('display_errors', 1);
 								LEFT JOIN tbl_customers ON tbl_customers.customer_id = tbl_indent_tripsheet.customer_id
 								LEFT JOIN city AS cc ON cc.id = tbl_indent_tripsheet.consignee_city
 								LEFT JOIN state AS cs ON cs.id = tbl_indent_tripsheet.consignee_state
-								WHERE 1=1 $filterCond");
+								WHERE 1=1 $filterCond order by tbl_indent_tripsheet.id DESC LIMIT $offset , 20");
 
 				$this->load->library('pagination');
 			
@@ -150,7 +150,7 @@ ini_set('display_errors', 1);
 				$config['base_url'] 			= 'admin/view-ftl-request';
 				//	$config['suffix'] 				= '/'.urlencode($filterCond);
 				
-				$config['per_page'] 			= 50;
+				$config['per_page'] 			= 20;
 				$config['full_tag_open'] 		= '<nav aria-label="..."><ul class="pagination">';
 				$config['full_tag_close'] 		= '</ul></nav>';
 				$config['first_link'] 			= '&laquo; First';
@@ -198,15 +198,6 @@ ini_set('display_errors', 1);
 		}		
         
 	}
-
-
-
-    // public function index()
-	// {
-	// 	$data['ftl_request_data'] = $this->db->query("SELECT tbl_indent_tripsheet.* ,tbl_vehicle_type.vehicle_name  FROM tbl_indent_tripsheet left join tbl_vehicle_type ON tbl_vehicle_type.id = tbl_indent_tripsheet.type_of_vehicle ")->result_array();
-	// 	$this->load->view('admin/FTL_indent/ftl_request_list', $data);
-	// }
-
     //  Calculating targert Price rate 
 	public function gat_rfq_customer_data()
 	{
@@ -220,9 +211,6 @@ ini_set('display_errors', 1);
 		if(!empty($data1)){$data = $data1;}else{$data = '';}
 		echo json_encode($data);
 	}
-
-
-
     public function add_ftl_request()
 	{
 		$customer_id = $this->input->post('customer_id');
@@ -380,8 +368,6 @@ ini_set('display_errors', 1);
 			$this->load->view('admin/FTL_indent/add_ftl_request', $data);
 		}
 	}
-
-
     public function update_ftl_request($id)
 	{
 			$customer_id = $this->input->post('customer_id');
@@ -522,11 +508,5 @@ ini_set('display_errors', 1);
 				$this->load->view('admin/FTL_indent/Update_ftl_request', $data);
 			}
 		}
-
-
-
-
 }
-
-
 ?>

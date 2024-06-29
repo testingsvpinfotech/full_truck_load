@@ -130,6 +130,18 @@ $parcel = [
 ];
 define('weight_type', $parcel);
 
+$service_provider = [
+    '1'=>'Fleet Owner',
+    '2'=>'Broker',
+    '3'=>'Attach Vehicle',
+    '4'=>'Other'
+];
+define('service_provider', $service_provider);
 
+$r = [
+    '1'=>'Registered',
+    '2'=>'Unregistered'
+];
+define('register_type', $r);
 
 

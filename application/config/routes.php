@@ -807,9 +807,7 @@ $route['users/ewaybill-list/(:num)'] 	= 'User_panel/view_ewaybill_list/$1';
   $route['admin/pending-transfer-payment'] = 'Admin_TraficManager/pending_transfer_payment';
   $route['admin/ftl-payment'] = 'Admin_TraficManager/ftl_payment';
   $route['admin/ftl-payment/(:num)'] = 'Admin_TraficManager/ftl_payment/$1';
-  $route['admin/add-ftl-vendor'] = 'Admin_TraficManager/add_ftl_vendor';
-  $route['admin/ftl-vendor-list'] = 'Admin_TraficManager/ftl_vendor_list';
-  $route['admin/ftl-vendor-list/(:num)'] = 'Admin_TraficManager/ftl_vendor_list/$1';
+
   $route['admin/upload-pod'] = 'Admin_TraficManager/upload-pod';
   $route['admin/upload-pod/(:num)'] = 'Admin_TraficManager/upload_pod_vendor/$1';
 
@@ -917,3 +915,7 @@ $route['admin/view-ftl-request']	     = 'AdminFTL_indent/index';
 $route['admin/view-ftl-request/(:any)']	     = 'AdminFTL_indent/index/$1';   
 $route['admin/add-ftl-request']	     = 'AdminFTL_indent/add_ftl_request';   
 $route['admin/update_ftl_request/(:num)']	  = 'AdminFTL_indent/update_ftl_request/$1';   
+
+$route['admin/ftl-vendor-list'] = 'Admin_vendore_registration/index';
+$route['admin/ftl-vendor-list/(:num)'] = 'Admin_vendore_registration/index/$1';
+$route['admin/add-ftl-vendor'] = 'Admin_vendore_registration/add_ftl_vendor';
