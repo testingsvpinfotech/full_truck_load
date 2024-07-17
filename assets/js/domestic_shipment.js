@@ -1180,6 +1180,99 @@ function calculate_cft(){
 	  });
 
 
+	  $("#v_pincode").on('blur', function () {
+		var pincode = $(this).val();
+		if (pincode != '' || pincode != 'null' || pincode !='0') {
+			$.ajax({
+				type: 'POST',
+				url: 'FTLController/getCityList',
+				data: 'pincode=' + pincode,
+				dataType: "json",
+				success: function (data) {
+					if (data.status == 'failed') {
+						$('#v_city_id').val("");
+						$('#v_state_id').val("");
+						alertify.alert(data.message,
+							function () {
+								alertify.success('Ok');
+							});
+						return false;
+					} else {
+						$('#v_city_id').val(data.city_id);
+						$('#v_state_id').val(data.state_id);
+					}
+					$("#v_city_id").trigger("change");
+					$("#v_state_id").trigger("change");
+				}
+			});
+			$("#v_state_id").trigger("change");
+		}
+	});
 
+	$(".gst").change(function () {
+		var inputValue = $(this).val();
+		var gstinFormat = new RegExp('^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$');
+		
+		if (gstinFormat.test(inputValue)) {                                    
+			return true;
+		} else {                                    
+			alert('Please Enter Valid GSTIN Number');
+			$(this).val('');
+			$(this).focus();
+		}
+	});
+	$(".pan").change(function() {
+		var inputvalues = $(this).val();
+		var regex = /[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+		if (!regex.test(inputvalues)) {
+			$(".pan").val("");
+			alert('Invalid PAN CARD Number');
+		}
+	});
+
+	$("#register_type").change(function() {
+		var registered = $(this).val();
+		if (registered == '1') {
+			$(".required_gst").attr("required", "true");
+			$(".hide_gst_certificate").show();
+		} else {
+			$(".hide_gst_certificate").hide();
+		}
+	});
+	var cnt = 1;
+	$('#add_data').click(function() {
+		var origin = $('#origin').val();
+		var destination = $('#destination').val();
+		var vehicle_type = $('#vehicle_type').val();                                 
+		if (origin && destination && vehicle_type) {
+			var $html = '<div class="row mb-4" id="RANDOM_NO_' + cnt + '" data-id="#RANDOM_NO#">' +
+				'<div class="form-group col-sm-3">' +
+				'<input type="text" name="origin[]" data-id="#RANDOM_NO#" class="form-control" value="' + origin + '" readonly>' +
+				'</div>' +
+				'<div class="form-group col-sm-3">' +
+				'<input type="text" class="form-control" name="destination[]" data-id="#RANDOM_NO#" value="' + destination + '" readonly>' +
+				'</div>' +
+				'<div class="form-group col-sm-3">' +
+				'<input type="text" class="form-control" name="vehicle_type[]" data-id="#RANDOM_NO#" value="' + vehicle_type + '" readonly>' +
+				'</div>' +
+				'<div class="form-group col-sm-3 mt-4">' +
+				'<button type="button" class="btn btn-danger removebutton" onClick="remove_row123(' + cnt + ')">Delete</button>' +
+				'</div>' +
+				'</div>';
+
+			$('#show_column').append($html);
+			cnt++;
+		} else {
+			alert('Please select all fields');
+		}
+	});
+	function remove_row123(cnt1) {
+		$("#RANDOM_NO_" + cnt1).remove();
+	}
+
+	$(".gst").on('input', function () {
+		var inputValue = $(this).val();
+		$(this).val(inputValue.toUpperCase());
+	});
 
 /****************************************************************** FTL (FULL TRUCK LOAD) end **************************/
