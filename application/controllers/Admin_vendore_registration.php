@@ -16,18 +16,69 @@ class Admin_vendore_registration extends CI_Controller
 
 	public function index($offset = '0')
 	{
-		$vendor_list = $this->db->query("select * from tbl_vendor_customer JOIN city ON city.id = tbl_vendor_customer.city JOIN state ON state.id = tbl_vendor_customer.state ORDER BY customer_id  DESC limit " . $offset . ",10");
-
-		$resActt = $this->db->query("select * from tbl_vendor_customer");
-
+	    $data = [];
+		if (isset($_GET['from_date'])) {
+			$data['from_date'] = $_GET['from_date'];
+			$from_date = $_GET['from_date'];
+		}
+		if (isset($_GET['to_date'])) {
+			$data['to_date'] = $_GET['to_date'];
+			$to_date = $_GET['to_date'];
+		}
+		if (isset($_GET['filter'])) {
+			$filter = $_GET['filter'];
+			$data['filter'] = $filter;
+		}
+		if (isset($_GET['filter_value'])) {
+			$filter_value = $_GET['filter_value'];
+			$data['filter_value'] = $filter_value;
+		}
+		$user_id = $this->session->userdata("userId");
+		$filterCond = "";
+		$all_data = $this->input->get();	
+		$from_date = '';
+		if ($all_data) {
+			$filter_value = $_GET['filter_value'];
+			foreach ($all_data as $ke => $vall) {
+				if ($ke == 'filter' && !empty($vall)) {
+					if ($vall == 'Vcode') {
+						if (!empty($filter_value)) {
+							$indent_no = $filter_value;
+							$filterCond .= " AND v.vid = '$filter_value'";
+						}
+					}
+					if ($vall == 'vendor_name') {
+						$filterCond .= " AND v.vendor_name = '$filter_value'";
+					}
+				}
+			}
+			if (!empty($_GET['from_date']) && !empty($_GET['to_date'])) {
+				$from_date = $_GET['from_date'];
+				$to_date = $_GET['to_date'];
+				$filterCond .= " AND DATE(v.register_date) BETWEEN '$from_date' AND '$to_date'";
+			}
+			if ($_GET['user_id'] != 'ALL') {
+				if (!empty($_GET['user_id'])) {
+					$customer_id = $_GET['user_id'];
+					$filterCond .= " AND v.status ='$customer_id'";
+				}
+			}
+		}else{
+			$month = date('m');
+			$year = date('Y');
+			$user_type = $this->session->userdata("userType");
+			$filterCond .= " AND MONTH(v.register_date) = '$month' AND YEAR(v.register_date) = '$year'";
+		}
+		if (!empty($searching)) {
+			$filterCond = urldecode($searching);
+		}
+		$vendor_list = $this->db->query("select * from tbl_vendor_customer as v JOIN city ON city.id = v.city JOIN state ON state.id = v.state  WHERE v.isDeleted ='0' $filterCond ORDER BY v.customer_id DESC limit " . $offset . ",10");
+		$resActt = $this->db->query("select * from tbl_vendor_customer WHERE isDeleted ='0'");
 		$this->load->library('pagination');
-
 		$data['total_count'] = $resActt->num_rows();
 		$config['total_rows'] = $resActt->num_rows();
-		$config['base_url'] = 'admin/ftl-vendor-list/';
-		//	$config['suffix'] 				= '/'.urlencode($filterCond);
-
-		$config['per_page'] = 10;
+		$config['base_url'] = 'admin/view-ftl-request';
+		$config['per_page'] = 20;
 		$config['full_tag_open'] = '<nav aria-label="..."><ul class="pagination">';
 		$config['full_tag_close'] = '</ul></nav>';
 		$config['first_link'] = '&laquo; First';
@@ -48,7 +99,6 @@ class Admin_vendore_registration extends CI_Controller
 		$config['reuse_query_string'] = TRUE;
 		$config['num_tag_close'] = '</li>';
 		$config['attributes'] = array('class' => 'page-link');
-
 		if ($offset == '') {
 			$config['uri_segment'] = 3;
 			$data['serial_no'] = 1;
@@ -56,23 +106,18 @@ class Admin_vendore_registration extends CI_Controller
 			$config['uri_segment'] = 3;
 			$data['serial_no'] = $offset + 1;
 		}
-
-
 		$this->pagination->initialize($config);
 		if ($vendor_list->num_rows() > 0) {
 			$data['ftl_customer_vendor'] = $vendor_list->result();
 		} else {
 			$data['ftl_customer_vendor'] = array();
 		}
-
 		$this->load->view('admin/vendor_customer_master/ftl_customer_vendor', $data);
 	}
 
 	public function add_ftl_vendor()
 	{
-
 		$user_id = $this->session->userdata('userId');
-
 		if (isset($_POST['submit'])) {
 			// basic validation
 			if (!empty($this->input->post('state')) && !empty($this->input->post('city'))) {
@@ -125,10 +170,21 @@ class Admin_vendore_registration extends CI_Controller
 					$profile_image = $ret['image_name'];
 				}
 			}
-
+			$result = $this->db->query("select max(customer_id) AS id from tbl_vendor_customer")->row();
+			// echo $this->db->last_query();exit;
+			$id = $result->id + 1;
+			if (strlen($id) == 1) {
+				$customer_id = 'VI0000' . $id;
+			} else if (strlen($id) == 2) {
+				$customer_id = 'VI000' . $id;
+			} else if (strlen($id) == 3) {
+				$customer_id = 'VI00' . $id;
+			} else if (strlen($id) == 4) {
+				$customer_id = 'VI' . $id;
+			}
 			$date = date('y-m-d H:i:s');
 			$data = array(
-				'vid' => $this->input->post('vci'),
+				'vid' => $customer_id,
 				'vendor_name' => $this->input->post('vendor_name'),
 				'reference_person_name' => $this->input->post('reference_person_name'),
 				'mobile_no' => $this->input->post('phone'),
@@ -155,10 +211,8 @@ class Admin_vendore_registration extends CI_Controller
 				'bank_name' => $this->input->post('bank_name'),
 				'acc_number' => $this->input->post('acc_number'),
 				'ifsc_code' => $this->input->post('ifsc_code'),
-				'status' => 1,
 				'created_by' => $user_id
 			);
-
 			$this->db->insert('tbl_vendor_customer', $data);
 			$last_id = $this->db->insert_id();
 			$origin = $this->input->post('origin[]');
@@ -172,8 +226,6 @@ class Admin_vendore_registration extends CI_Controller
 					'destination' => $destination[$i],
 					'vehicle_type' => $vehicle_type[$i],
 				);
-				//print_r($data);exit;
-
 				$res = $this->db->insert('tbl_vendor_customer_service_area', $data);
 			}
 			if (!empty($res)) {
@@ -184,36 +236,17 @@ class Admin_vendore_registration extends CI_Controller
 				redirect(base_url() . 'admin/add-ftl-vendor');
 			}
 		} else {
-
-			$result = $this->db->query("select max(customer_id) AS id from tbl_vendor_customer")->row();
-			// echo $this->db->last_query();exit;
-			$id = $result->id + 1;
-
-			if (strlen($id) == 1) {
-				$customer_id = 'VI0000' . $id;
-			} else if (strlen($id) == 2) {
-				$customer_id = 'VI000' . $id;
-			} else if (strlen($id) == 3) {
-				$customer_id = 'VI00' . $id;
-			} else if (strlen($id) == 4) {
-				$customer_id = 'VI' . $id;
-			}
-			$data['VCI'] = $customer_id;
 			$data['cities'] = $this->basic_operation_m->get_all_result('city', '');
 			$data['states'] = $this->basic_operation_m->get_all_result('state', '');
 			$data['vehicle_type'] = $this->db->query('SELECT * FROM tbl_vehicle_type')->result();
 			//  print_r($data['VCI']);exit;
 			$this->load->view('admin/vendor_customer_master/vendor_registration', $data);
 		}
-
-
 	}
 
 	public function edit_vendor($id)
 	{
-
 		$user_id = $this->session->userdata('userId');
-
 		if (isset($_POST['submit'])) {
 			$vid = $this->input->post('id');
 			$edit_vendor = $this->db->query("SELECT * FROM tbl_vendor_customer WHERE customer_id = '$vid'")->row();
@@ -233,7 +266,6 @@ class Admin_vendore_registration extends CI_Controller
 			}
 			NumValidation($this->input->post('phone'), 'Contact No Not Valid', 'admin/add-ftl-vendor');
 			NumValidation($this->input->post('alternate_number'), 'Alternate Contact No Not Valid', 'admin/add-ftl-vendor');
-
 			$date = date('y-m-d H:i:s');
 			$data = array(
 				'vendor_name' => $this->input->post('vendor_name'),
@@ -255,13 +287,10 @@ class Admin_vendore_registration extends CI_Controller
 				'bank_name' => $this->input->post('bank_name'),
 				'acc_number' => $this->input->post('acc_number'),
 				'ifsc_code' => $this->input->post('ifsc_code'),
-				'status' => 1,
 			);
-			
-			if(!empty($this->input->post('password'))){
-               $data['password'] = md5($this->input->post('password'));
+			if (!empty($this->input->post('password'))) {
+				$data['password'] = md5($this->input->post('password'));
 			}
-
 			$v = $this->input->post('cancel_cheque');
 			if (isset($_FILES) && !empty($_FILES['cancel_cheque']['name'])) {
 				$path = 'assets/ftl_documents/vendor_register_doc/' . $edit_vendor->cancel_cheque;
@@ -311,7 +340,6 @@ class Admin_vendore_registration extends CI_Controller
 					$data['profile_image'] = $profile_image;
 				}
 			}
-
 			$update = $this->db->update('tbl_vendor_customer', $data, ['customer_id' => $vid]);
 			$last_id = $this->db->insert_id();
 			$origin = $this->input->post('origin[]');
@@ -337,20 +365,19 @@ class Admin_vendore_registration extends CI_Controller
 				}
 			}
 			if (!empty($update)) {
-				$msg	= 'Vendor Updated Successfully';
-				$class	= 'alert alert-success alert-dismissible';		
-				$this->session->set_flashdata('notify',$msg);
-				$this->session->set_flashdata('class',$class);	
+				$msg = 'Vendor Updated Successfully';
+				$class = 'alert alert-success alert-dismissible';
+				$this->session->set_flashdata('notify', $msg);
+				$this->session->set_flashdata('class', $class);
 				redirect(base_url() . 'admin/ftl-vendor-list');
 			} else {
-				$msg	= 'Something went Wrong';
-				$class	= 'alert alert-danger alert-dismissible';		
-				$this->session->set_flashdata('notify',$msg);
-				$this->session->set_flashdata('class',$class);	
+				$msg = 'Something went Wrong';
+				$class = 'alert alert-danger alert-dismissible';
+				$this->session->set_flashdata('notify', $msg);
+				$this->session->set_flashdata('class', $class);
 				redirect(base_url() . 'admin/ftl-vendor-list');
 			}
 		} else {
-
 			$data['edit_vendor'] = $this->db->query("SELECT * FROM tbl_vendor_customer WHERE customer_id = '$id'")->row();
 			$data['service'] = $this->db->query("SELECT tbl_vehicle_type.vehicle_name,o.city as origin , d.city destiontion,tbl_vendor_customer_service_area.id as id,tbl_vendor_customer_service_area.isdeleted FROM tbl_vendor_customer_service_area 
 			JOIN city o ON o.id = tbl_vendor_customer_service_area.origin 
@@ -364,13 +391,10 @@ class Admin_vendore_registration extends CI_Controller
 			//  print_r($data['VCI']);exit;
 			$this->load->view('admin/vendor_customer_master/edit_vendor', $data);
 		}
-
-
 	}
 
 	public function view_service($id = 0)
 	{
-
 		if ($id != '0' || $id != '') {
 			$data = [];
 			$data['service'] = $this->db->query("SELECT tbl_vehicle_type.vehicle_name,o.city as origin , d.city destiontion FROM tbl_vendor_customer_service_area 
@@ -380,28 +404,52 @@ class Admin_vendore_registration extends CI_Controller
 		WHERE tbl_vendor_customer_service_area.isdeleted = 0 AND tbl_vendor_customer_service_area.vendor_id = '$id' ORDER BY tbl_vendor_customer_service_area.id DESC")->result();
 			$this->load->view('admin/vendor_customer_master/view_vendor_services', $data);
 		}
-
 	}
 
-	public function delete_customer()
+	public function vendor_approve()
 	{
 		$getId = $this->input->post('getid');
-		
-		$r = array('isDeleted' => '1');
-		
-		$data = $this->basic_operation_m->update('tbl_vendor_customer', $r, array('id' => $getId));
+		$r = array('status' => '1');
+		$data = $this->basic_operation_m->update('tbl_vendor_customer', $r, array('customer_id' => $getId));
 		//    echo $this->db->last_query();die;
 		if ($data) {
 			$output['status'] = 'error';
 			$output['message'] = 'Something went wrong in deleting the member';
-
 		} else {
 			$output['status'] = 'success';
 			$output['message'] = 'Status Change successfully';
 		}
-
 		echo json_encode($output);
-
+	}
+	public function vendor_reject()
+	{
+		$getId = $this->input->post('getid');
+		$r = array('status' => '2');
+		$data = $this->basic_operation_m->update('tbl_vendor_customer', $r, array('customer_id' => $getId));
+		//    echo $this->db->last_query();die;
+		if ($data) {
+			$output['status'] = 'error';
+			$output['message'] = 'Something went wrong in deleting the member';
+		} else {
+			$output['status'] = 'success';
+			$output['message'] = 'Status Change successfully';
+		}
+		echo json_encode($output);
+	}
+	public function delete_customer()
+	{
+		$getId = $this->input->post('getid');
+		$r = array('isDeleted' => '1');
+		$data = $this->basic_operation_m->update('tbl_vendor_customer', $r, array('customer_id' => $getId));
+		//    echo $this->db->last_query();die;
+		if ($data) {
+			$output['status'] = 'error';
+			$output['message'] = 'Something went wrong in deleting the member';
+		} else {
+			$output['status'] = 'success';
+			$output['message'] = 'Vendor deleted successfully';
+		}
+		echo json_encode($output);
 	}
 
 }

@@ -110,6 +110,7 @@
         <script src="assets/admin_assets/dist/vendors/jquery-jvectormap/jquery-jvectormap-de-merc.js"></script>
         <script src="assets/admin_assets/dist/vendors/jquery-jvectormap/jquery-jvectormap-us-aea.js"></script>
         <script src="assets/admin_assets/dist/vendors/apexcharts/apexcharts.min.js"></script>
+        <script src="assets/js/domestic_shipment.js"></script>
         <!-- END: Page Vendor JS-->
 
         <!-- START: Page JS-->

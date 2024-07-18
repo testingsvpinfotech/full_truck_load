@@ -66,9 +66,7 @@
                                     <div class="">
                                         <form class="p-a30 dez-form" action="<?php echo base_url('admin/add-ftl-vendor'); ?>" method="POST" enctype="multipart/form-data">
                                             <!-- <h3 class="form-title m-t0" style="color:#e95421;">Sign UP</h3> -->
-                                            <input type="hidden" class="form-control" value="<?php echo $VCI; ?>" name="vci">
-
-                                            <div class="row mb-4">
+                                         <div class="row mb-4">
                                                 <div class="col-sm-4">
                                                     <div class="form-group">
                                                         <label class="control-label">Vendor Name<span style="color:red;"><i class="fa fa-star"

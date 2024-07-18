@@ -39,52 +39,57 @@
                 <h4 class="card-title">View Indent Tripsheet</h4>
               </div>
               <div class="card-header">
-              <form role="form" action="admin/view-ftl-request" method="GET" enctype="multipart/form-data">
-										<div class="form-row">										
-											<div class="col-md-2">
-												<label for="">Filter</label>
-												<select class="form-control fillter" name="filter">
-													<option selected disabled>Select Filter</option>
-													<option value="indent_no" <?php echo (isset($filter) && $filter == 'indent_no') ? 'selected' : ''; ?>>Indent No</option>
-													<option value="origin_city" <?php echo (isset($filter) && $filter == 'origin_city') ? 'selected' : ''; ?>>Origin City</option>
-													<option value="destination_city" <?php echo (isset($filter) && $filter == 'destination_city') ? 'selected' : ''; ?>>Destination city</option>
-												</select>
-											</div>
-											<div class="col-md-2">
-												<label for="">Filter Value</label>
-												<input type="text" class="form-control" value="<?php echo (isset($filter_value)) ? $filter_value : ''; ?>" name="filter_value" />
-											</div>
-											<div class="col-md-2">
-												<label for="">Customer</label>
-												<select class="form-control fillter" name="user_id" id="user_id">
-													<option value="">Selecte Customer</option>
-													<?php if (!empty($customer)) {
-														foreach ($customer as $key => $values) { ?>
-															<option value="<?php echo $values['customer_id']; ?>" <?php echo (isset($user_id) && $user_id == $values['customer_id']) ? 'selected' : ''; ?>><?php echo $values['customer_name']; ?></option><?php }
-																																																													} ?>
-												</select>
-											</div>
-											<div class="col-sm-1">
-												<label for="">From Date</label>
-												<input type="date" name="from_date" value="<?php echo (isset($from_date)) ? $from_date : ''; ?>" id="from_date" autocomplete="off" class="form-control">
-											</div>
+                <form role="form" action="admin/view-ftl-request" method="GET" enctype="multipart/form-data">
+                  <div class="form-row">
+                    <div class="col-md-2">
+                      <label for="">Filter</label>
+                      <select class="form-control fillter" name="filter">
+                        <option selected disabled>Select Filter</option>
+                        <option value="indent_no" <?php echo (isset($filter) && $filter == 'indent_no') ? 'selected' : ''; ?>>Indent No</option>
+                        <option value="origin_city" <?php echo (isset($filter) && $filter == 'origin_city') ? 'selected' : ''; ?>>Origin City</option>
+                        <option value="destination_city" <?php echo (isset($filter) && $filter == 'destination_city') ? 'selected' : ''; ?>>Destination city</option>
+                      </select>
+                    </div>
+                    <div class="col-md-2">
+                      <label for="">Filter Value</label>
+                      <input type="text" class="form-control"
+                        value="<?php echo (isset($filter_value)) ? $filter_value : ''; ?>" name="filter_value" />
+                    </div>
+                    <div class="col-md-2">
+                      <label for="">Customer</label>
+                      <select class="form-control fillter" name="user_id" id="user_id">
+                        <option value="">Selecte Customer</option>
+                        <?php if (!empty($customer)) {
+                          foreach ($customer as $key => $values) { ?>
+                            <option value="<?php echo $values['customer_id']; ?>" <?php echo (isset($user_id) && $user_id == $values['customer_id']) ? 'selected' : ''; ?>>
+                              <?php echo $values['customer_name']; ?></option><?php }
+                        } ?>
+                      </select>
+                    </div>
+                    <div class="col-sm-1">
+                      <label for="">From Date</label>
+                      <input type="date" name="from_date" value="<?php echo (isset($from_date)) ? $from_date : ''; ?>"
+                        id="from_date" autocomplete="off" class="form-control">
+                    </div>
 
-											<div class="col-sm-1">
-												<label for="">To Date</label>
-												<input type="date" name="to_date" value="<?php echo (isset($to_date)) ? $to_date : ''; ?>" id="to_date" autocomplete="off" class="form-control">
-											</div>
-											<div class="col-sm-2"> 
-                         <br>
-												<input type="submit" class="btn btn-primary" name="submit" value="Filter">
-												<a href="admin/view-ftl-request" class="btn btn-info">Reset</a>
-											</div>
-										</div>
-									</form>
+                    <div class="col-sm-1">
+                      <label for="">To Date</label>
+                      <input type="date" name="to_date" value="<?php echo (isset($to_date)) ? $to_date : ''; ?>"
+                        id="to_date" autocomplete="off" class="form-control">
+                    </div>
+                    <div class="col-sm-2">
+                      <br>
+                      <input type="submit" class="btn btn-primary" name="submit" value="Filter">
+                      <a href="admin/view-ftl-request" class="btn btn-info">Reset</a>
+                    </div>
+                  </div>
+                </form>
               </div>
               <div class="card-body">
                 <?php if ($this->session->flashdata('notify') != '') { ?>
                   <div class="alert <?php echo $this->session->flashdata('class'); ?> alert-colored">
-                    <?php echo $this->session->flashdata('notify'); ?></div>
+                    <?php echo $this->session->flashdata('notify'); ?>
+                  </div>
                   <?php unset($_SESSION['class']);
                   unset($_SESSION['notify']);
                 } ?>
@@ -131,18 +136,18 @@
                             <td><?php echo $value['request_date_time']; ?></td>
                             <td><?php echo $value['pickup_address']; ?></td>
                             <td><?php echo $value['o_pincode']; ?></td>
-                            <td><?php echo  $value['o_city']; ?></td>
+                            <td><?php echo $value['o_city']; ?></td>
                             <td><?php echo $value['d_city']; ?></td>
                             <td><?php echo $value['d_pincode']; ?></td>
                             <td><?php echo $value['vehicle_name']; ?></td>
                             <td><?php echo $value['vehicle_capacity']; ?></td>
                             <td><?php echo $value['contact_number']; ?></td>
-                            <td><?php echo $value['delivery_address']; ?></td>                          
+                            <td><?php echo $value['delivery_address']; ?></td>
                             <td><?php echo $value['d_contact_name']; ?></td>
                             <td><?php echo $value['delivery_contact_no']; ?></td>
                             <td><?php echo $value['amount']; ?></td>
                             <td>
-                              <?php echo $value['created_by'].' - '.$value['username']; ?>
+                              <?php echo $value['created_by'] . ' - ' . $value['username']; ?>
 
                             </td>
                             <td>
@@ -170,12 +175,12 @@
 
                   </table>
                   <div class="row">
-                        <div class="col-md-6">
-                        <?php echo $this->pagination->create_links(); ?>
-                      </div>
+                    <div class="col-md-6">
+                      <?php echo $this->pagination->create_links(); ?>
                     </div>
+                  </div>
                 </div>
-              
+
               </div>
             </div>
           </div>
@@ -212,7 +217,7 @@
 
   <?php include (dirname(__FILE__) . '/../admin_shared/admin_footer.php'); ?>
   <!-- START: Footer-->
-<script src="<?= base_url('assets/js/domestic_shipment.js'); ?>"></script>
+  <script src="<?= base_url('assets/js/domestic_shipment.js'); ?>"></script>
   <script>
     $(document).ready(function () {
 
