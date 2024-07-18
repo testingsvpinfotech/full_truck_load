@@ -265,16 +265,22 @@ class Admin_manager extends CI_Controller
 
 	public function view_dashboard() 
 	{
+// 		error_reporting(E_ALL);
+// ini_set('display_errors', 1);
 		$data = $this->data;
-		$data['ftl_customer_vendor'] = $this->db->query("select count(customer_id) as total_vendor from vendor_customer_tbl where status ='0'")->result_array();	
+		// $data['ftl_customer_vendor'] = $this->db->query("select count(customer_id) as total_vendor from vendor_customer_tbl where status ='0'")->result_array();	
+		$data['ftl_customer_vendor'] = [];	
 
-		$monthly = $this->db->query("select * from report_table WHERE report_type='monthly' ORDER BY report_id DESC")->row_array();
-		$weekly = $this->db->query("select * from report_table WHERE report_type='weekly' ORDER BY report_id DESC")->row_array();
-		$complaint = $this->db->query("select * from report_table WHERE report_type='Complaint' ORDER BY report_id DESC")->row_array();
+		// $monthly = $this->db->query("select * from report_table WHERE report_type='monthly' ORDER BY report_id DESC")->row_array();
+		// $weekly = $this->db->query("select * from report_table WHERE report_type='weekly' ORDER BY report_id DESC")->row_array();
+		// $complaint = $this->db->query("select * from report_table WHERE report_type='Complaint' ORDER BY report_id DESC")->row_array();
 
-		$data['status'] = $monthly['report_data'];
-		$data['weekly'] = $weekly['report_data'];
-		$data['complaint'] = $complaint['report_data'];
+		$data['status'] = [];
+		$data['weekly'] = [];
+		$data['complaint'] = [];
+		// $data['status'] = $monthly['report_data'];
+		// $data['weekly'] = $weekly['report_data'];
+		// $data['complaint'] = $complaint['report_data'];
 
 		if($this->session->userdata("userType") == '1')
 		{

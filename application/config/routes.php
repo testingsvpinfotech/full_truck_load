@@ -918,4 +918,6 @@ $route['admin/update_ftl_request/(:num)']	  = 'AdminFTL_indent/update_ftl_reques
 
 $route['admin/ftl-vendor-list'] = 'Admin_vendore_registration/index';
 $route['admin/ftl-vendor-list/(:num)'] = 'Admin_vendore_registration/index/$1';
+$route['admin/vendor-service/(:num)'] = 'Admin_vendore_registration/view_service/$1';
+$route['admin/edit-vendor/(:num)'] = 'Admin_vendore_registration/edit_vendor/$1';
 $route['admin/add-ftl-vendor'] = 'Admin_vendore_registration/add_ftl_vendor';

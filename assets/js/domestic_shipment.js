@@ -1239,6 +1239,23 @@ function calculate_cft(){
 			$(".hide_gst_certificate").hide();
 		}
 	});
+
+	function checkGST(){
+		var registered = $('#register_type').val();
+		if (registered == '1') {
+			$(".required_gst").attr("required", "true");
+			$(".hide_gst_certificate").show();
+		} else {
+			$(".hide_gst_certificate").hide();
+		}
+	}
+
+	function selectFirstOption(id) {
+		const selectElement = document.getElementById(id);
+		selectElement.selectedIndex = 0; // Selects the first option (index 0)
+	}
+
+
 	var cnt = 1;
 	$('#add_data').click(function() {
 		var origin = $('#origin').val();
@@ -1261,6 +1278,9 @@ function calculate_cft(){
 				'</div>';
 
 			$('#show_column').append($html);
+			selectFirstOption('origin');
+			selectFirstOption('destination');
+			selectFirstOption('vehicle_type');
 			cnt++;
 		} else {
 			alert('Please select all fields');

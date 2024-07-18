@@ -34,12 +34,13 @@
                             </div>
                             
                             <div class="col-md-6">
-                            <?php if (!empty($this->session->flashdata('msg'))) { ?>
-                                <div class="alert alert-success" role="alert">
-                                    <button type="button" class="close" data-dismiss="alert">X</button>
-                                    <?php echo $this->session->flashdata('msg'); ?>
-                                </div>
-                            <?php } ?>
+                            <?php if ($this->session->flashdata('notify') != '') { ?>
+										<div class="alert <?php echo $this->session->flashdata('class'); ?> alert-colored">
+											<?php echo $this->session->flashdata('notify'); ?>
+										</div>
+										<?php unset($_SESSION['class']);
+										unset($_SESSION['notify']);
+									} ?>
                             </div>
 
                             <div class="card-body">
@@ -71,10 +72,10 @@
                                                 <th scope="col">Pan Card Proof</th>
                                                 <th scope="col">Cancel Cheque</th>
                                                 <th scope="col">Address Proof</th>
-                                                <th scope="col">Gst Proof</th>                                             
-                                                <th scope="col">Status</th>                                             
-                                                                          
-
+                                                <th scope="col">Gst Proof</th>     
+                                                <th scope="col">Service</th>                                                   
+                                                <th scope="col">Status</th>                                                                               
+                                                <th scope="col">Action</th>                                                                               
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -96,21 +97,70 @@
                                                 <td><?php echo $ct->city ?></td>
                                                 <td><?php echo $ct->state ?></td>
                                                 <td><?php echo $ct->address; ?></td>
-                                                <td><?php echo $ct->service_provider; ?></td>
+                                                <td><?php if(!empty($ct->service_provider)){echo service_provider[$ct->service_provider];} ?></td>
                                                 <td><?php echo $ct->credit_days; ?></td>
                                                 <td><?php echo $ct->register_date; ?></td>
-                                                <td><?php echo $ct->register_type; ?></td>
+                                                <td><?php if(!empty($ct->register_type)){ echo register_type[$ct->register_type];} ?></td>
                                                 <td><?php echo $ct->pan_number; ?></td>
                                                 <td><?php echo $ct->gst_number; ?></td>
                                                 <td><?php echo $ct->bank_name; ?></td>
                                                 <td><?php echo $ct->acc_number; ?></td>
                                                 <td><?php echo $ct->ifsc_code; ?></td>
-                                                <td><a href="<?php echo base_url();?>/assets/ftl_documents/vendor_register_doc/<?php echo $ct->pan_card_proof; ?>"download><img src="<?php echo base_url();?>/assets/ftl_documents/vendor_register_doc/<?php echo $ct->pan_card_proof; ?>" style="width:100px; height:auto"></a></td>
-                                                <td> <a href="<?php echo base_url();?>/assets/ftl_documents/vendor_register_doc/<?php echo $ct->cancel_cheque; ?>"download><img src="<?php echo base_url();?>/assets/ftl_documents/vendor_register_doc/<?php echo $ct->cancel_cheque; ?>" style="width:100px; height:auto"></a></td>
-                                                <td><a href="<?php echo base_url();?>/assets/ftl_documents/vendor_register_doc/<?php echo $ct->address_proof; ?>"download><img src="<?php echo base_url();?>/assets/ftl_documents/vendor_register_doc/<?php echo $ct->address_proof; ?>" style="width:100px; height:auto"></a></td>
-                                                <td><a href="<?php echo base_url();?>/assets/ftl_documents/vendor_register_doc/<?php echo $ct->gst_proof; ?>"download><img src="<?php echo base_url();?>/assets/ftl_documents/vendor_register_doc/<?php echo $ct->gst_proof; ?>" style="width:100px; height:auto"></a></td>
-
-                                                <!-- <td><?php // echo $ct->payment_date; ?></td> -->
+                                                <td>
+                                                    <?php if(!empty($ct->pan_card_proof)){
+                                                        $ext = explode('.',$ct->pan_card_proof);
+                                                        if($ext[1] =='pdf'){?>
+                                                            <a href="<?= base_url('assets/ftl_documents/vendor_register_doc/'.$ct->pan_card_proof);?>" target="_blank"><i class="fa fa-link" aria-hidden="true"> View GST PDF</i></a>
+                                                        <?php }else{ ?>
+                                                            <a href="<?php echo base_url();?>/assets/ftl_documents/vendor_register_doc/<?php echo $ct->pan_card_proof; ?>" src="<?php echo base_url();?>/assets/ftl_documents/vendor_register_doc/<?php echo $ct->pan_card_proof; ?>" title="<?php echo $ct->pan_card_proof; ?>" onclick="show_image(this);return false;" style="color:blue;">View-Image</a>
+                                                            <?php if($_SESSION['userType']==7 || $_SESSION['userType']==1){ ?>
+                                                            | <a href="<?php echo base_url();?>/assets/ftl_documents/vendor_register_doc/<?php echo $ct->pan_card_proof; ?>"download>Download</a>
+                                                    <?php }} }else{ ?>
+                                                        <span style="color:red">Data Not Found</span>
+                                                    <?php } ?>
+                                                </td>
+                                                <td>
+                                                    <?php if(!empty($ct->cancel_cheque)){
+                                                        $ext = explode('.',$ct->cancel_cheque);
+                                                        if($ext[1] =='pdf'){?>
+                                                            <a href="<?= base_url('assets/ftl_documents/vendor_register_doc/'.$ct->cancel_cheque);?>" target="_blank"><i class="fa fa-link" aria-hidden="true"> View GST PDF</i></a>
+                                                        <?php }else{ ?>
+                                                            <a href="<?php echo base_url();?>/assets/ftl_documents/vendor_register_doc/<?php echo $ct->cancel_cheque; ?>" src="<?php echo base_url();?>/assets/ftl_documents/vendor_register_doc/<?php echo $ct->cancel_cheque; ?>" title="<?php echo $ct->cancel_cheque; ?>" onclick="show_image(this);return false;" style="color:blue;">View-Image</a>
+                                                            <?php if($_SESSION['userType']==7 || $_SESSION['userType']==1){ ?>
+                                                            | <a href="<?php echo base_url();?>/assets/ftl_documents/vendor_register_doc/<?php echo $ct->cancel_cheque; ?>"download>Download</a>
+                                                    <?php }} }else{ ?>
+                                                        <span style="color:red">Data Not Found</span>
+                                                    <?php } ?>
+                                                </td>
+                                                <td>
+                                                    <?php if(!empty($ct->address_proof)){
+                                                        $ext = explode('.',$ct->address_proof);
+                                                        if($ext[1] =='pdf'){?>
+                                                            <a href="<?= base_url('assets/ftl_documents/vendor_register_doc/'.$ct->address_proof);?>" target="_blank"><i class="fa fa-link" aria-hidden="true"> View GST PDF</i></a>
+                                                        <?php }else{ ?>
+                                                            <a href="<?php echo base_url();?>/assets/ftl_documents/vendor_register_doc/<?php echo $ct->address_proof; ?>" src="<?php echo base_url();?>/assets/ftl_documents/vendor_register_doc/<?php echo $ct->address_proof; ?>" title="<?php echo $ct->address_proof; ?>" onclick="show_image(this);return false;" style="color:blue;">View-Image</a>
+                                                            <?php if($_SESSION['userType']==7 || $_SESSION['userType']==1){ ?>
+                                                            | <a href="<?php echo base_url();?>/assets/ftl_documents/vendor_register_doc/<?php echo $ct->address_proof; ?>"download>Download</a>
+                                                    <?php }} }else{ ?>
+                                                        <span style="color:red">Data Not Found</span>
+                                                    <?php } ?>
+                                                </td>
+                                                <td>
+                                                    <?php if(!empty($ct->gst_proof)){
+                                                        $ext = explode('.',$ct->gst_proof);
+                                                        if($ext[1] =='pdf'){?>
+                                                            <a href="<?= base_url('assets/ftl_documents/vendor_register_doc/'.$ct->gst_proof);?>" target="_blank"><i class="fa fa-link" aria-hidden="true"> View GST PDF</i></a>
+                                                        <?php }else{ ?>
+                                                            <a href="<?php echo base_url();?>/assets/ftl_documents/vendor_register_doc/<?php echo $ct->gst_proof; ?>" src="<?php echo base_url();?>/assets/ftl_documents/vendor_register_doc/<?php echo $ct->gst_proof; ?>" title="<?php echo $ct->gst_proof; ?>" onclick="show_image(this);return false;" style="color:blue;">View-Image</a>
+                                                            <?php if($_SESSION['userType']==7 || $_SESSION['userType']==1){ ?>
+                                                            | <a href="<?php echo base_url();?>/assets/ftl_documents/vendor_register_doc/<?php echo $ct->gst_proof; ?>"download>Download</a>
+                                                    <?php }} }else{ ?>
+                                                        <span style="color:red">Data Not Found</span>
+                                                    <?php } ?>
+                                                </td>
+                                                <td>
+                                                    <a href="<?= base_url('admin/vendor-service/'.$ct->customer_id);?>" target="_blank"><i class="fa fa-link" aria-hidden="true"> View Service</i></a>
+                                                </td>
                                                 <td>
                                                
                                                     <?php if($ct->status == '0'){?>
@@ -124,6 +174,12 @@
                                                             <button class="btn btn-danger">Inactive</button>
                                                          <?php } ?>   
                                                 </td>
+                                                <td> <?php if($_SESSION['userType']=='1' || $_SESSION['userType']=='7'){ ?>
+                                                   <a href="<?= base_url('admin/edit-vendor/'.$ct->customer_id);?>" ><i class="ion-edit" style="color:var(--primarycolor); font-size: medium;"></i></a>
+                                                   | &nbsp; <a href="javascript:void(0)" relid="<?php echo $ct->customer_id; ?>" title="Delete" class="deletedata"><i class="ion-trash-b" style="color:var(--danger)"></i></a>
+                                                  <?php }else{ echo '<span style="color:red;">No Access</span>'; } ?>
+                                                </td>
+
 
                                                 
                                             </tr>
@@ -199,13 +255,153 @@
             </div>
             </div>
 
-
+         
     <!-- END: Content-->
     <!-- START: Footer-->
     <?php $this->load->view('admin/admin_shared/admin_footer');?>
 
    
 </body>
+<div id="myModal" class="modal">
+         <span class="close-image-modal">&times;</span>
+         <img class="modal-content" id="img01">
+         <div id="caption"></div>
+       </div>
+       <style type="text/css">
+         /* The Modal (background) */
+         .modal {
+           display: none;
+           /* Hidden by default */
+           position: fixed;
+           /* Stay in place */
+           z-index: 1;
+           /* Sit on top */
+           padding-top: 100px;
+           /* Location of the box */
+           left: 0;
+           top: 0;
+           width: 100%;
+           /* Full width */
+           height: 100%;
+           /* Full height */
+           overflow: auto;
+           /* Enable scroll if needed */
+           background-color: rgb(0, 0, 0);
+           /* Fallback color */
+           background-color: rgba(0, 0, 0, 0.9);
+           /* Black w/ opacity */
+         }
+
+         /* Modal Content (image) */
+         .modal-content {
+           margin: auto;
+           display: block;
+           width: 50%;
+           max-width: 700px;
+         }
+
+         /* Caption of Modal Image */
+         #caption {
+           margin: auto;
+           display: block;
+           width: 80%;
+           max-width: 700px;
+           text-align: center;
+           color: #ccc;
+           padding: 10px 0;
+           height: 150px;
+         }
+
+         /* Add Animation */
+         .modal-content,
+         #caption {
+           -webkit-animation-name: zoom;
+           -webkit-animation-duration: 0.6s;
+           animation-name: zoom;
+           animation-duration: 0.6s;
+         }
+
+         @-webkit-keyframes zoom {
+           from {
+             -webkit-transform: scale(0)
+           }
+
+           to {
+             -webkit-transform: scale(1)
+           }
+         }
+
+         @keyframes zoom {
+           from {
+             transform: scale(0)
+           }
+
+           to {
+             transform: scale(1)
+           }
+         }
+
+         /* The Close Button */
+         .close-image-modal {
+           position: absolute;
+           /*top: 15px;*/
+           right: 35px;
+           color: #f1f1f1;
+           font-size: 40px;
+           font-weight: bold;
+           transition: 0.3s;
+         }
+
+         .close-image-modal:hover,
+         .close-image-modal:focus {
+           color: #bbb;
+           text-decoration: none;
+           cursor: pointer;
+         }
+
+         /* 100% Image Width on Smaller Screens */
+         @media only screen and (max-width: 700px) {
+           .modal-content {
+             width: 100%;
+           }
+         }
+       </style>
+<script>
+       // Get the modal
+       var modal = document.getElementById("myModal");
+
+       function show_image(obj) {
+         var captionText = document.getElementById("caption");
+         var modalImg = document.getElementById("img01");
+         modal.style.display = "block";
+         // alert(obj.tagName);
+         if (obj.tagName == 'A') {
+           modalImg.src = obj.href;
+           captionText.innerHTML = obj.title;
+         }
+         if (obj.tagName == 'img') {
+           modalImg.src = obj.src;
+           captionText.innerHTML = obj.alt;
+         }
+
+         // modalImg.src = 'http://www.safedart.in/assets/pod/pod_1.jpg';
+
+       }
+       var span = document.getElementsByClassName("close-image-modal")[0];
+
+       // When the user clicks on <span> (x), close the modal
+       span.onclick = function() {
+         modal.style.display = "none";
+       }
+
+
+       // Get the image and insert it inside the modal - use its "alt" text as a caption
+
+
+
+
+       // Get the <span> element that closes the modal
+     </script>
 <script>
        $('.approve_status').click(function() {
 
@@ -234,7 +430,6 @@
 
        
        $('.inactive').click(function() {
-
            var id = $(this).attr('relid'); //get the attribute value
            // alert(id);
 
@@ -257,5 +452,42 @@
                }
            });
        });
+       $('.deletedata').click(function() {
+			var getid = $(this).attr("relid");
+			// alert(getid);
+			var baseurl = '<?php echo base_url(); ?>'
+			swal({
+				title: 'Are you sure?',
+				text: "You won't be able to revert this!",
+				icon: 'warning',
+				showCancelButton: true,
+				confirmButtonColor: '#3085d6',
+				cancelButtonColor: '#d33',
+				confirmButtonText: 'Yes, delete it!',
+			}).then((result) => {
+				if (result.value) {
+					$.ajax({
+							url: baseurl + 'Admin_vendore_registration/delete_customer',
+							type: 'POST',
+							data: 'getid=' + getid,
+							dataType: 'json'
+						})
+						.done(function(response) {
+							swal('Deleted!', response.message, response.status)
+
+								.then(function() {
+									location.reload();
+								})
+
+						})
+						.fail(function() {
+							swal('Oops...', 'Something went wrong with ajax !', 'error');
+						});
+				}
+
+			})
+
+		});
+
    </script>
 <!-- END: Body-->
