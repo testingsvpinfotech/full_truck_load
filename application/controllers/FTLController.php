@@ -318,22 +318,6 @@ public function get_ftl_details(){
 			}
 		}
 
-
-		public function cancel_ftl_request(){
-			$id = $this->input->post('cancel_ftl_id');
-			$msg = $this->input->post('cancel_ftl_msg');
-			$result = $this->db->query("UPDATE ftl_request_tbl set cancel_ftl_reason ='$msg',ftl_booking_status = '2'  where id = '$id'");
-			// echo $this->db->last_query();die;
-			if($result){
-				$this->session->set_flashdata('msg', 'Order Cancelled  !');
-				redirect('admin/view-ftl-request');
-			}else{
-			$this->session->set_flashdata('msg', 'Something went wrong!');
-			redirect('admin/view-ftl-request');
-			}
-		}
-
-
 	public function gat_rfq_customer_data()
 	{
 

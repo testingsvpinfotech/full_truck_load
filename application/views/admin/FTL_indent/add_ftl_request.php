@@ -737,7 +737,9 @@
 </body>
 <!-- END: Body-->
 <script src="assets/js/domestic_shipment.js"></script>
-
+<script>
+   $('.fillter').select2();
+</script>
 
 <!-- // ******************************************** show consinee data***************************** -->
 

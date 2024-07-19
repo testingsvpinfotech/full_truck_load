@@ -1267,6 +1267,42 @@ $('.approve_vendor').click(function () {
 	})
 
 });
+$('.approve_indent').click(function () {
+	var getid = $(this).attr("relid");
+	// alert(getid);
+	var baseurl = '<?php echo base_url(); ?>'
+	swal({
+		title: 'Are you sure?',
+		text: "You won't Approve this Tripsheet!",
+		icon: 'warning',
+		showCancelButton: true,
+		confirmButtonColor: '#3085d6',
+		cancelButtonColor: '#d33',
+		confirmButtonText: 'Yes, Approve!',
+	}).then((result) => {
+		if (result.value) {
+			$.ajax({
+				url: 'AdminFTL_indent/tripsheet_approve',
+				type: 'POST',
+				data: 'getid=' + getid,
+				dataType: 'json'
+			})
+				.done(function (response) {
+					swal('Deleted!', response.message, response.status)
+
+						.then(function () {
+							location.reload();
+						})
+
+				})
+				.fail(function () {
+					swal('Oops...', 'Something went wrong with ajax !', 'error');
+				});
+		}
+
+	})
+
+});
 $('.reject_vendor').click(function () {
 	var getid = $(this).attr("relid");
 	// alert(getid);

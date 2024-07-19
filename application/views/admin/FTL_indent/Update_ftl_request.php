@@ -735,6 +735,7 @@
 <script src="assets/js/domestic_shipment.js"></script>
 
 <script>
+   $('.fillter').select2();
     getConssignee();
 </script>
 <!-- // ******************************************** show consinee data***************************** -->

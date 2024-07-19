@@ -41,8 +41,8 @@
               <div class="card-header">
                 <form role="form" action="admin/view-ftl-request" method="GET" enctype="multipart/form-data">
                   <div class="form-row">
-                    <div class="col-md-2">
-                      <label for="">Filter</label>
+                    <div class="col-md-1">
+                      <label for="">Filter Name</label>
                       <select class="form-control fillter" name="filter">
                         <option selected disabled>Select Filter</option>
                         <option value="indent_no" <?php echo (isset($filter) && $filter == 'indent_no') ? 'selected' : ''; ?>>Indent No</option>
@@ -50,7 +50,7 @@
                         <option value="destination_city" <?php echo (isset($filter) && $filter == 'destination_city') ? 'selected' : ''; ?>>Destination city</option>
                       </select>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-1">
                       <label for="">Filter Value</label>
                       <input type="text" class="form-control"
                         value="<?php echo (isset($filter_value)) ? $filter_value : ''; ?>" name="filter_value" />
@@ -61,8 +61,9 @@
                         <option value="">Selecte Customer</option>
                         <?php if (!empty($customer)) {
                           foreach ($customer as $key => $values) { ?>
-                            <option value="<?php echo $values['customer_id']; ?>" <?php echo (isset($user_id) && $user_id == $values['customer_id']) ? 'selected' : ''; ?>>
-                              <?php echo $values['customer_name']; ?></option><?php }
+                            <option value="<?php echo $values['customer_id']; ?>" <?php echo (isset($_GET['user_id']) && $_GET['user_id'] == $values['customer_id']) ? 'selected' : ''; ?>>
+                              <?php echo $values['customer_name']; ?>
+                            </option><?php }
                         } ?>
                       </select>
                     </div>
@@ -79,8 +80,8 @@
                     </div>
                     <div class="col-sm-2">
                       <br>
-                      <input type="submit" class="btn btn-primary" name="submit" value="Filter">
-                      <a href="admin/view-ftl-request" class="btn btn-info">Reset</a>
+                      <input type="submit" class="btn btn-primary btn-sm" name="submit" value="Search">
+                      <a href="admin/view-ftl-request" class="btn btn-danger btn-sm">Reset</a>
                     </div>
                   </div>
                 </form>
@@ -118,6 +119,7 @@
                         <th scope="col">Amount</th>
                         <th scope="col">Created By</th>
                         <th scope="col">Status</th>
+                        <th scope="col">Action</th>
 
                       </tr>
                     </thead>
@@ -128,8 +130,7 @@
                         foreach ($ftl_request_data as $value): ?>
                           <tr>
                             <td><?php echo $cnt++; ?></td>
-                            <td><a href="<?php echo base_url('admin/update_ftl_request/' . $value['id']); ?>"
-                                class="text-info"><?php echo $value['ftl_request_id']; ?></a></td>
+                            <td><?php echo $value['ftl_request_id']; ?></td>
                             <td><?php echo $value['cust_name']; ?></td>
                             <td><?php echo $value['cid']; ?></td>
                             <td><?php echo $value['order_date']; ?></td>
@@ -151,23 +152,38 @@
 
                             </td>
                             <td>
-                              <?php if ($value['status'] == 0) { ?>
-                                <button class="btn btn-warning btn-sm">Pending</button>
-                                <button class="btn cancel_ftl btn-danger btn-sm" relid="<?php echo $value['id']; ?>">Cancel
-                                  Order</button>
-                              <?php } elseif ($value['status'] == 1) { ?>
-                                <button class="btn btn-success">Approved</button>
-                              <?php } else if ($value['status'] == 2) { ?>
-                                  <button class="btn  btn-danger">Cancelled</button>
+                              
+                              <?php if ($value['status'] == '0') { ?>
+                                  <span style="color:chocolate;"> Pending </span>
+                              <?php } elseif ($value['status'] == '1') { ?>
+                                  <span style="color:green">Approved</span>
+                              <?php } elseif ($value['status'] == '2') { ?>
+                                  <span style="color:red">Cancelled</span>
+                                  <p>Reason : <?= $value['cancel_reason']; ?></p>
                               <?php } ?>
                             </td>
-
+                            <td>
+                              <?php if($_SESSION['userType'] == 1 || $_SESSION['userType'] == 7){ ?>
+                                  <a href="<?php echo base_url('admin/update_ftl_request/' . $value['id']); ?>"
+                                    class="text-info" title="Edit Tripsheet"><i class="ion-edit"
+                                      style="color:var(--primarycolor); font-size: medium;"></i></a>
+                                     
+                                      <?php if ($value['status'] == '0') { ?>
+                                        | &nbsp; <a href="javascript:void(0)"
+                                        relid="<?php echo $value['id']; ?>" title="Approve"
+                                        class="approve_indent"><img
+                                            src="<?= base_url('assets/icons/approve.png'); ?>"
+                                            style="width:15px; height:15px;" alt="Approve"></a>
+                                     | &nbsp; <button class="btn cancel_ftl btn-danger btn-sm" relid="<?php echo $value['id']; ?>" title="Tripsheet Cancel"><i class="fa fa-times"></i></button>
+                                    <?php }}?>
+                             </td>
+                            
 
                           </tr>
                         <?php endforeach; ?>
                       <?php } else { ?>
                         <tr>
-                          <td colspan="20" style="color:red;">No Data Found</td>
+                          <td colspan="21" style="color:red;">No Data Found</td>
                         </tr>
                       <?php } ?>
 
@@ -193,17 +209,22 @@
 
   <!-- ******************************* Cancel vendor ************************************************** -->
 
-  <div id="show_cancel_modal" class="modal fade" role="dialog" style="background: #000;">
+  <div id="show_cancel_modal" class="modal fade" role="dialog" style="background: rgba(0, 0, 0, 0.5);">
     <div class="modal-dialog" style="margin-top: 137px;">
       <div class="modal-content">
-        <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-times"></i></button>
+        <div class="modal-header">
+        <h5 class="modal-title">Tripsheet Cancel Request!</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
         <div class="modal-body">
-          <h4 style="margin-top: 50px;text-align: center;">Are You Sure You Want To Cancel Order</h4>
-          <form action="<?php echo base_url('FTLController/cancel_ftl_request'); ?>" method="POST">
+          <h6 style="text-align: center;">Are You Sure ? <br> You Want To Cancel this Indent.<br> If Yes Please Enter the Cancel Reason</h6> <br>
+          <form action="<?php echo base_url('AdminFTL_indent/cancel_tripsheet_request'); ?>" method="POST">
             <input type="hidden" id="cancel_ftl_id" name="cancel_ftl_id" required>
-            <input type="text" placeholder="Enter Cancel Reason" id="cancel_ftl_msg" name="cancel_ftl_msg"
-              class="form-control" required><br>
-            <input type="submit" class="btn btn-success" value="submit" name="submit">
+            <textarea type="text" placeholder="Enter Cancel Reason" id="cancel_ftl_msg" name="cancel_ftl_msg"
+              class="form-control" required></textarea> <br>
+            <input type="submit" class="btn btn-primary" value="Submit" name="submit" style="float:right;">
           </form>
         </div>
         <!-- <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-times"></i> Close</button> -->
@@ -220,7 +241,7 @@
   <script src="<?= base_url('assets/js/domestic_shipment.js'); ?>"></script>
   <script>
     $(document).ready(function () {
-
+      $('.fillter').select2();
       $('.cancel_ftl').click(function () {
         var id = $(this).attr('relid'); //get the attribute value
         $('#cancel_ftl_id').val(id);
